@@ -1,0 +1,12 @@
+2026-05-06 21:18:36 - EVENT: comment.created - DATA: {"id":26,"post_id":72,"user_id":18,"parent_comment_id":null,"content":"sdfsdf"}
+2026-05-06 21:18:36 - EVENT: comment.created - DATA: {"id":26,"post_id":72,"user_id":18,"parent_comment_id":null,"content":"sdfsdf"}
+2026-05-06 21:20:48 - EVENT: post.created - DATA: {"user_id":18,"category_id":14,"title":"testing","content":"<p>observer test<\/p>","image_path":null}
+2026-05-06 21:20:48 - EVENT: post.created - DATA: {"user_id":18,"category_id":14,"title":"testing","content":"<p>observer test<\/p>","image_path":null}
+2026-05-06 21:21:06 - EVENT: comment.created - DATA: {"id":27,"post_id":73,"user_id":18,"parent_comment_id":null,"content":"pecky"}
+2026-05-06 21:21:07 - EVENT: comment.created - DATA: {"id":27,"post_id":73,"user_id":18,"parent_comment_id":null,"content":"pecky"}
+2026-05-06 21:21:11 - EVENT: comment.deleted - DATA: {"id":27,"post_id":73,"user_id":18,"content":"pecky"}
+2026-05-06 21:21:11 - EVENT: comment.deleted - DATA: {"id":27,"post_id":73,"user_id":18,"content":"pecky"}
+2026-05-06 21:22:39 - EVENT: post.created - DATA: {"user_id":18,"category_id":17,"title":"tzfdgas","content":"<p>afgafgadfgadfgad<\/p>","image_path":null}
+2026-05-06 21:22:39 - EVENT: post.created - DATA: {"user_id":18,"category_id":17,"title":"tzfdgas","content":"<p>afgafgadfgadfgad<\/p>","image_path":null}
+2026-05-06 21:33:44 - EVENT: post.deleted - DATA: {"id":56,"image_path":null}
+2026-05-06 21:33:44 - EVENT: post.deleted - DATA: {"id":56,"image_path":null}

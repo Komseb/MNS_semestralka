@@ -1,0 +1,9 @@
+vendor/
+node_modules/
+.git/
+.idea/
+.vscode/
+docker-compose.yml
+Dockerfile
+README.md
+documentation/

@@ -1,0 +1,312 @@
+{% extends 'base.twig' %}
+
+{% block title %}
+	{{ post.title }}
+	- Ziggid
+{% endblock %}
+
+{% block content %}
+	<div
+		class="max-w-[900px] mx-auto px-5 py-8">
+
+		{# Back button #}
+		<div class="mb-4">
+			<a href="{{ base }}?r=home" class="inline-flex items-center gap-2 text-gray-600 hover:text-brand transition-colors">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+				</svg>
+				Zpět na příspěvky
+			</a>
+		</div>
+
+		{# Post #}
+		<article class="bg-surface rounded-xl border border-white/8 overflow-hidden">
+			<div
+				class="flex gap-6 p-6">
+
+				{# Vote Section #}
+				<div class="flex flex-col items-center gap-2 min-w-10" data-vote-scope="{{ post.id }}" data-vote-state="{{ (isLoggedIn and post.user_vote is defined) ? post.user_vote : 'none' }}">
+					<button onclick="{{ isLoggedIn ? "vote(" ~ post.id ~ ", 'upvote')" : "window.location.href='" ~ base ~ "?r=auth/login'" }}" data-up="{{ post.id }}" class="vote-btn transition-colors cursor-pointer">
+						<img src="{{ base }}images/icons/{{ (isLoggedIn and post.user_vote is defined and post.user_vote == 'up') ? 'up_arrow_blue.svg' : 'up_arrow_gray.svg' }}" class="w-8 h-8" alt="Upvote">
+					</button>
+					<span class="vote-score font-bold text-2xl text-white" data-post-id="{{ post.id }}">{{ post.vote_score }}</span>
+					<button onclick="{{ isLoggedIn ? "vote(" ~ post.id ~ ", 'downvote')" : "window.location.href='" ~ base ~ "?r=auth/login'" }}" data-down="{{ post.id }}" class="vote-btn transition-colors cursor-pointer">
+						<img src="{{ base }}images/icons/{{ (isLoggedIn and post.user_vote is defined and post.user_vote == 'down') ? 'down_arrow_red.svg' : 'down_arrow_gray.svg' }}" class="w-8 h-8" alt="Downvote">
+					</button>
+				</div>
+
+				{# Post Content #}
+				<div
+					class="flex-1 min-w-0">
+					{# Post Header #}
+					<div class="flex items-center gap-2 text-sm text-gray-400 mb-3">
+						<a href="{{ base }}?r=categories&slug={{ post.category_slug }}" class="font-semibold text-brand hover:underline">
+							{{ post.category_name }}
+						</a>
+						<span class="text-white/30">•</span>
+						<span>u/{{ post.username }}</span>
+						<span class="text-white/30">•</span>
+						<span>{{ post.created_at|date('d.m.Y H:i') }}</span>
+					</div>
+
+					{# Post Title #}
+					<h1 class="text-3xl font-bold mb-4 m-0 text-white">
+						{{ post.title }}
+					</h1>
+
+					{# Post Image #}
+					{% if post.image_path %}
+						<div class="mb-6">
+							<img src="{{ base }}{{ post.image_path }}" alt="{{ post.title }}" class="w-full rounded-lg border border-white/10">
+						</div>
+					{% endif %}
+
+					{# Post Content #}
+					<div class="max-w-none mb-6 leading-relaxed">
+						<div class="ck-content text-gray-200">
+							{{ post.content|raw }}
+						</div>
+					</div>
+
+					{# Post Actions #}
+					<div class="flex items-center gap-4 text-sm text-gray-400 pt-4 border-t border-white/10">
+						<span class="flex items-center gap-1">
+							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+							</svg>
+							Komentáře ({{ comments|length }})
+						</span>
+						{% set canDeletePost = (userId == post.user_id) or permissions.canDeleteUserContent(currentRoleId, post.user_role_id) %}
+						{% if canDeletePost %}
+							<form method="POST" action="{{ base }}?r=posts&action=delete" class="inline" onsubmit="return confirm('Opravdu chcete smazat tento příspěvek?')">
+								<input type="hidden" name="post_id" value="{{ post.id }}">
+								<button type="submit" class="text-red-500 hover:text-red-400 font-semibold">Smazat příspěvek</button>
+							</form>
+						{% endif %}
+					</div>
+				</div>
+
+			</div>
+		</article>
+
+		{# Comments Section #}
+		<div class="mt-8">
+			<div class="bg-surface rounded-xl border border-white/8 p-6">
+				<h3 class="text-2xl font-bold text-white mb-6">Komentáře</h3>
+
+				{% if success is defined and success %}
+					<div class="mb-4 bg-green-500/20 border border-green-500/40 text-green-300 px-4 py-3 rounded-lg text-sm">{{ success }}</div>
+				{% endif %}
+				{% if error is defined and error %}
+					<div class="mb-4 bg-red-500/20 border border-red-500/40 text-red-300 px-4 py-3 rounded-lg text-sm">{{ error }}</div>
+				{% endif %}
+
+				{# New Comment Form #}
+				{% if isLoggedIn %}
+					{% if isBanned %}
+						<div class="mb-6 bg-red-500/15 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg text-sm">
+							Tvůj účet je aktuálně zabanován – komentáře nelze přidávat.
+						</div>
+					{% else %}
+						<form method="POST" action="{{ base }}?r=posts&action=comment-store" class="mb-8">
+							<input type="hidden" name="post_id" value="{{ post.id }}">
+							<div class="mb-3">
+								<textarea name="content" rows="3" required minlength="2" class="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-lg text-white focus:outline-none focus:border-brand" placeholder="Napiš svůj komentář..."></textarea>
+							</div>
+							<div class="flex justify-end">
+								<button type="submit" class="px-5 py-3 rounded-lg font-semibold border-2 transition-all bg-brand text-white border-brand hover:bg-brand-600">Přidat komentář</button>
+							</div>
+						</form>
+					{% endif %}
+				{% else %}
+					<p class="text-sm text-gray-400 mb-6">Pro přidání komentáře se prosím
+						<a href="{{ base }}?r=auth/login" class="text-brand hover:underline">přihlaš</a>.</p>
+				{% endif %}
+
+				{# Comment List #}
+				<div class="space-y-5">
+					{% for comment in comments %}
+						<div class="border border-white/10 rounded-lg p-5 bg-white/2">
+							<div class="flex items-start justify-between gap-3">
+								<div class="flex items-center gap-3 min-w-0">
+									<div class="w-10 h-10 rounded-full bg-linear-to-br from-brand to-accent text-[#0a0a0a] font-bold grid place-items-center text-lg">
+										{{ comment.username|slice(0,1)|upper }}
+									</div>
+									<div class="flex items-center gap-2 min-w-0">
+										<span class="font-semibold text-white leading-tight truncate">{{ comment.username }}</span>
+										<span class="text-xs text-gray-400 whitespace-nowrap">{{ comment.created_at|date('d.m.Y H:i') }}</span>
+									</div>
+								</div>
+								{% set canDelete = (comment.user_id == userId) or permissions.canDeleteUserContent(currentRoleId, comment.user_role_id) %}
+								{% if canDelete %}
+									<form method="POST" action="{{ base }}?r=posts&action=comment-delete" onsubmit="return confirm('Smazat tento komentář?')" class="m-0">
+										<input type="hidden" name="comment_id" value="{{ comment.id }}">
+										<button type="submit" class="text-xs font-semibold text-exclamation hover:text-red-400 px-2 py-1 rounded hover:bg-white/6">Smazat</button>
+									</form>
+								{% endif %}
+							</div>
+							<div class="text-gray-200 whitespace-pre-wrap leading-relaxed pl-14">{{ comment.content }}</div>
+
+						</div>
+					{% else %}
+						<p class="text-sm text-gray-400">Zatím žádné komentáře. Buď první!</p>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+	{% if isLoggedIn %}
+		<script>
+			async function vote(postId, voteType) {
+const scope = document.querySelector(`[data-vote-scope="${postId}"]`);
+if (! scope) 
+return;
+
+if (scope.dataset.pending === '1') 
+return;
+
+scope.dataset.pending = '1';
+
+const scoreElement = scope.querySelector(`[data-post-id="${postId}"]`);
+const upImg = scope.querySelector(`button[data-up="${postId}"] img`);
+const downImg = scope.querySelector(`button[data-down="${postId}"] img`);
+
+if (! scoreElement || ! upImg || ! downImg) {
+delete scope.dataset.pending;
+return;
+}
+
+const prevScore = parseInt(scoreElement.textContent, 10) || 0;
+const prevState = scope.dataset.voteState || 'none';
+
+let newState;
+if (voteType === 'upvote') {
+newState = (prevState === 'up') ? 'none' : 'up';
+} else if (voteType === 'downvote') {
+newState = (prevState === 'down') ? 'none' : 'down';
+} else {
+newState = prevState;
+}
+
+const deltaMap = {
+'none->up': 1,
+'none->down': -1,
+'up->none': -1,
+'down->none': 1,
+'up->down': -2,
+'down->up': 2
+};
+const delta = deltaMap[`${prevState}->${newState}`] || 0;
+
+const updateIcons = (state) => {
+const base = '{{ base }}images/icons/';
+if (state === 'up') {
+upImg.src = base + 'up_arrow_blue.svg';
+downImg.src = base + 'down_arrow_gray.svg';
+} else if (state === 'down') {
+upImg.src = base + 'up_arrow_gray.svg';
+downImg.src = base + 'down_arrow_red.svg';
+} else {
+upImg.src = base + 'up_arrow_gray.svg';
+downImg.src = base + 'down_arrow_gray.svg';
+}
+};
+
+//Apply optimistically
+updateIcons(newState);
+scoreElement.textContent = String(prevScore + delta);
+scope.dataset.voteState = newState;
+
+try {
+const response = await fetch('{{ base }}?r=posts&action=vote', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/x-www-form-urlencoded'
+},
+body: `post_id=${postId}&vote_type=${voteType}`
+});
+const data = await response.json();
+if (data.success) {
+scoreElement.textContent = String(data.score);
+updateIcons(data.state);
+scope.dataset.voteState = data.state || 'none';
+} else { //revert
+scoreElement.textContent = String(prevScore);
+updateIcons(prevState);
+scope.dataset.voteState = prevState;
+}
+} catch (e) {
+scoreElement.textContent = String(prevScore);
+updateIcons(prevState);
+scope.dataset.voteState = prevState;
+} finally {
+delete scope.dataset.pending;
+}
+}
+
+//hover effects
+document.addEventListener('mouseover', (e) => {
+const btn = e.target.closest('.vote-btn');
+if (! btn) 
+return;
+
+
+const img = btn.querySelector('img');
+if (! img) 
+return;
+
+
+const scope = btn.closest('[data-vote-scope]');
+if (! scope) 
+return;
+
+
+const state = scope.dataset.voteState || 'none';
+const isUpBtn = btn.hasAttribute('data-up');
+const base = '{{ base }}images/icons/';
+
+if (isUpBtn) {
+if (state !== 'up') 
+img.src = base + 'up_arrow_white.svg';
+
+} else {
+if (state !== 'down') 
+img.src = base + 'down_arrow_white.svg';
+
+}
+});
+
+document.addEventListener('mouseout', (e) => {
+const btn = e.target.closest('.vote-btn');
+if (! btn) 
+return;
+
+
+const img = btn.querySelector('img');
+if (! img) 
+return;
+
+
+const scope = btn.closest('[data-vote-scope]');
+if (! scope) 
+return;
+
+
+const state = scope.dataset.voteState || 'none';
+const isUpBtn = btn.hasAttribute('data-up');
+const base = '{{ base }}images/icons/';
+
+if (isUpBtn) {
+img.src = (state === 'up') ? base + 'up_arrow_blue.svg' : base + 'up_arrow_gray.svg';
+} else {
+img.src = (state === 'down') ? base + 'down_arrow_red.svg' : base + 'down_arrow_gray.svg';
+}
+});
+		</script>
+	{% endif %}
+{% endblock %}

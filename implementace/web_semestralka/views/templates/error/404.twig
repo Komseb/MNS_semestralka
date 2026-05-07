@@ -1,0 +1,11 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+  <div class="min-h-[calc(100vh-160px)] flex items-center justify-center">
+    <div class="text-center px-5">
+      <h1 class="text-6xl font-extrabold m-0 mb-4">404</h1>
+      <p class="text-muted text-lg mb-6">Stránka, kterou hledáte, neexistuje</p>
+      <a class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-[10px] no-underline font-semibold border transition-all duration-150 bg-brand text-white border-transparent shadow-brand hover:bg-brand-600" href="{{ base }}?r=landing">Zpět na hlavní stránku</a>
+    </div>
+  </div>
+{% endblock %}

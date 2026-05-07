@@ -1,0 +1,115 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+	<div
+		class="max-w-[1100px] mx-auto px-5 py-8">
+
+		{# Header #}
+		<div class="mb-8">
+			<h1 class="text-3xl font-bold m-0 mb-2">Admin Panel</h1>
+			<p class="text-muted m-0 flex items-center gap-3">Vítej v administračním panelu,
+				<span class="font-semibold text-white">{{ userName }}</span>
+				{% if userRole == 'superadmin' %}
+					<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-purple-500/30 text-purple-300 px-2.5 py-1 rounded-full"><img src="{{ base }}images/icons/superadmin.svg" class="w-3 h-3" width="12" height="12">
+						SuperAdmin</span>
+				{% elseif userRole == 'admin' %}
+					<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-brand/30 text-brand px-2.5 py-1 rounded-full"><img src="{{ base }}images/icons/admin.svg" class="w-3 h-3" width="12" height="12">
+						Admin</span>
+				{% else %}
+					<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-white/10 text-gray-300 px-2.5 py-1 rounded-full"><img src="{{ base }}images/icons/user.svg" class="w-3 h-3" width="12" height="12">
+						User</span>
+				{% endif %}
+			</p>
+		</div>
+
+		{# Quick stats #}
+		<div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
+			<div class="bg-linear-to-b from-white/4 to-white/2 border border-white/8 rounded-xl p-6">
+				<div class="text-3xl mb-2"><img src="{{ base }}images/icons/users.svg" class="w-12 h-12" width="48" height="48"></div>
+				<h3 class="text-lg font-semibold m-0 mb-1">Správa uživatelů</h3>
+				<p class="text-sm text-muted m-0 mb-4">Spravuj uživatele, role a bany</p>
+				<a href="{{ base }}?r=admin/users" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg no-underline font-semibold border-2 transition-all duration-150 bg-brand text-white border-brand hover:bg-brand-600">
+					Otevřít
+				</a>
+			</div>
+
+			<div class="bg-linear-to-b from-white/4 to-white/2 border border-white/8 rounded-xl p-6">
+				<div class="text-3xl mb-2"><img src="{{ base }}images/icons/categories.svg" class="w-12 h-12" width="48" height="48"></div>
+				<h3 class="text-lg font-semibold m-0 mb-1">Správa kategorií</h3>
+				<p class="text-sm text-muted m-0 mb-4">Vytvárej a upravuj kategorie</p>
+				<a href="{{ base }}?r=admin/categories" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg no-underline font-semibold border-2 transition-all duration-150 bg-transparent text-gray-200 border-white/12 hover:bg-white/6">
+					Otevřít
+				</a>
+			</div>
+
+			<div class="bg-linear-to-b from-white/4 to-white/2 border border-white/8 rounded-xl p-6">
+				<div class="text-3xl mb-2"><img src="{{ base }}images/icons/posts.svg" class="w-12 h-12" width="48" height="48"></div>
+				<h3 class="text-lg font-semibold m-0 mb-1">Správa příspěvků</h3>
+				<p class="text-sm text-muted m-0 mb-4">Mazání a moderace obsahu</p>
+				<a href="{{ base }}?r=admin/posts" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg no-underline font-semibold border-2 transition-all duration-150 bg-transparent text-gray-200 border-white/12 hover:bg-white/6">
+					Otevřít
+				</a>
+			</div>
+
+			{% if userRole == 'superadmin' %}
+				<div class="bg-linear-to-b from-white/4 to-white/2 border border-white/8 rounded-xl p-6">
+					<div class="text-3xl mb-2"><img src="{{ base }}images/icons/admin.svg" class="w-12 h-12" width="48" height="48"></div>
+					<h3 class="text-lg font-semibold m-0 mb-1">Systémová nastavení</h3>
+					<p class="text-sm text-muted m-0 mb-4">Pouze pro SuperAdmina</p>
+					<a href="{{ base }}?r=admin/settings" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg no-underline font-semibold border-2 transition-all duration-150 bg-transparent text-gray-200 border-white/12 hover:bg-white/6">
+						Otevřít
+					</a>
+				</div>
+			{% endif %}
+		</div>
+
+		{# Info box #}
+		<div class="bg-linear-to-br from-brand/20 to-accent/20 border border-brand/30 rounded-xl p-6">
+			<h2 class="text-xl font-bold m-0 mb-3">Tvoje oprávnění</h2>
+			<div class="space-y-2">
+				<p class="text-sm m-0">
+					<span class="font-semibold">Role:</span>
+					{% if userRole == 'superadmin' %}
+						<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-purple-500/30 text-purple-300 px-2.5 py-1 rounded-full"><img src="{{ base }}images/icons/superadmin.svg" class="w-3 h-3" width="12" height="12">
+							SUPERADMIN</span>
+					{% elseif userRole == 'admin' %}
+						<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-brand/30 text-brand px-2.5 py-1 rounded-full"><img src="{{ base }}images/icons/admin.svg" class="w-3 h-3" width="12" height="12">
+							ADMIN</span>
+					{% else %}
+						<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-white/10 text-gray-300 px-2.5 py-1 rounded-full"><img src="{{ base }}images/icons/user.svg" class="w-3 h-3" width="12" height="12">
+							USER</span>
+					{% endif %}
+				</p>
+
+				{% if userRole == 'admin' %}
+					<ul class="text-sm space-y-1 m-0 mt-3 pl-5">
+						<li class="flex items-center gap-2"><img src="{{ base }}images/icons/check.svg" class="w-4 h-4" width="16" height="16">
+							Mazat příspěvky a komentáře běžných uživatelů</li>
+						<li class="flex items-center gap-2"><img src="{{ base }}images/icons/check.svg" class="w-4 h-4" width="16" height="16">
+							Banovat běžné uživatele</li>
+						<li class="flex items-center gap-2"><img src="{{ base }}images/icons/check.svg" class="w-4 h-4" width="16" height="16">
+							Spravovat kategorie</li>
+						<li class="flex items-center gap-2"><img src="{{ base }}images/icons/cross.svg" class="w-4 h-4" width="16" height="16">
+							Nemůžeš zasahovat proti jiným adminům</li>
+						<li class="flex items-center gap-2"><img src="{{ base }}images/icons/cross.svg" class="w-4 h-4" width="16" height="16">
+							Nemůžeš měnit role uživatelů</li>
+					</ul>
+				{% endif %}
+
+				{% if userRole == 'superadmin' %}
+					<ul class="text-sm space-y-1 m-0 mt-3 pl-5">
+						<li class="flex items-center gap-2"><img src="{{ base }}images/icons/check.svg" class="w-4 h-4" width="16" height="16">
+							Plná kontrola nad platformou</li>
+						<li class="flex items-center gap-2"><img src="{{ base }}images/icons/check.svg" class="w-4 h-4" width="16" height="16">
+							Můžeš banovat i mazat adminy</li>
+						<li class="flex items-center gap-2"><img src="{{ base }}images/icons/check.svg" class="w-4 h-4" width="16" height="16">
+							Můžeš měnit role všech uživatelů</li>
+						<li class="flex items-center gap-2"><img src="{{ base }}images/icons/check.svg" class="w-4 h-4" width="16" height="16">
+							Přístup k systémovým nastavením</li>
+					</ul>
+				{% endif %}
+			</div>
+		</div>
+
+	</div>
+{% endblock %}

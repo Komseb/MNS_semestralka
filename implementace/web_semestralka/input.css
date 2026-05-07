@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@layer base {
+  html, body {
+    height: 100%;
+  }
+  
+  body {
+    color: theme(colors.gray.200);
+    background-color: theme(colors.bg);
+    background-image: 
+      radial-gradient(1200px 600px at 10% 5%, #122033, transparent 70%),
+      radial-gradient(900px 500px at 90% 5%, #1a2a3f, transparent 65%),
+      radial-gradient(1000px 800px at 50% 50%, #0f1925, transparent 80%),
+      radial-gradient(800px 600px at 20% 95%, #1a2a3f, transparent 70%),
+      radial-gradient(1000px 700px at 80% 90%, rgba(34, 211, 238, 0.08), transparent 75%);
+    background-attachment: fixed;
+    background-size: 100% 100%;
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  /*profile dropdown show on hover*/
+  .profile-menu:hover .dropdown,
+  .profile-menu:focus-within .dropdown {
+    display: block !important;
+  }
+  
+  /*password requirement dots*/
+  .pwd-req .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: theme(colors.red.500);
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+  }
+  
+  .pwd-req li.valid .dot {
+    background-color: theme(colors.green.500);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+  }
+
+  /* Dark scrollbar utility for glass panels/menus */
+  .scrollbar-dark {
+    scrollbar-width: thin;               /* Firefox */
+    scrollbar-color: rgba(255,255,255,.28) rgba(255,255,255,.06);
+  }
+  .scrollbar-dark::-webkit-scrollbar {
+    width: 10px;                          /* Chrome/Edge/Safari */
+    height: 10px;
+  }
+  .scrollbar-dark::-webkit-scrollbar-track {
+    background: rgba(255,255,255,.06);
+    border-radius: 9999px;
+  }
+  .scrollbar-dark::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,.28);
+    border-radius: 9999px;
+    border: 2px solid transparent;       /* creates padding visually */
+    background-clip: padding-box;
+  }
+  .scrollbar-dark::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255,255,255,.38);
+  }
+}
+
+@theme {
+  --color-bg: #0b0e13;
+  --color-surface: #11161e;
+  --color-muted: #6b7280;
+  --color-exclamation: #ef4444;
+  --color-brand: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-accent: #22d3ee;
+  
+  --shadow-ring: 0 0 0 4px rgba(59, 130, 246, 0.5);
+  --shadow-brand: 0 10px 20px -10px rgba(59, 130, 246, 0.5);
+  --shadow-dropdown: 0 20px 40px rgba(0, 0, 0, 0.35);
+  --shadow-auth: 0 10px 30px rgba(0, 0, 0, 0.25);
+  
+  --font-family-brand: Orbitron, sans-serif;
+  
+  --backdrop-blur-xs: 10px;
+}

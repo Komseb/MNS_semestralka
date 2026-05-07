@@ -1,0 +1,383 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+	<div
+		class="max-w-[1200px] mx-auto px-5 py-8">
+
+		{# Header #}
+		<div class="mb-8 flex items-center justify-between">
+			<div>
+				<h1 class="text-3xl font-bold m-0 mb-2">Správa uživatelů</h1>
+				<p class="text-muted m-0">Spravuj uživatele platformy</p>
+			</div>
+			<a href="{{ base }}?r=admin" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg no-underline font-semibold border-2 transition-all bg-transparent text-gray-200 border-white/12 hover:bg-white/6">
+				← Zpět na dashboard
+			</a>
+		</div>
+
+		{# Success/Error messages #}
+		{% if success is defined %}
+			<div class="bg-green-500/20 border border-green-500/50 rounded-xl p-4 mb-6">
+				<p class="text-green-300 m-0"><img src="{{ base }}images/icons/check.svg" class="w-5 h-5" width="20" height="20">
+					{{ success }}</p>
+			</div>
+		{% endif %}
+
+		{% if error is defined %}
+			<div class="bg-red-500/20 border border-red-500/50 rounded-xl p-4 mb-6">
+				<p class="text-red-300 m-0"><img src="{{ base }}images/icons/cross.svg" class="w-5 h-5" width="20" height="20">
+					{{ error }}</p>
+			</div>
+		{% endif %}
+
+		{# Users table #}
+		<div class="bg-surface rounded-xl border border-white/12 overflow-hidden">
+			<div class="overflow-x-auto">
+				<table class="w-full">
+					<thead class="bg-white/5 border-b border-white/8">
+						<tr>
+							<th class="text-left px-6 py-4 font-semibold text-sm text-gray-300">Uživatel</th>
+							<th class="text-left px-6 py-4 font-semibold text-sm text-gray-300">Email</th>
+							<th class="text-left px-6 py-4 font-semibold text-sm text-gray-300">Role</th>
+							<th class="text-left px-6 py-4 font-semibold text-sm text-gray-300">Stav</th>
+							<th class="text-left px-6 py-4 font-semibold text-sm text-gray-300">Registrován</th>
+							<th class="text-right px-6 py-4 font-semibold text-sm text-gray-300">Akce</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-white/8">
+						{% for user in users %}
+							<tr class="hover:bg-white/5 transition-colors">
+								<td class="px-6 py-4">
+									<div class="flex items-center gap-3">
+										<span class="inline-grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-brand to-accent text-[#0a0a0a] font-extrabold">
+											{{ user.username|slice(0, 1)|upper }}
+										</span>
+										<span class="font-semibold">{{ user.username }}</span>
+									</div>
+								</td>
+								<td class="px-6 py-4 text-sm text-muted">{{ user.email }}</td>
+								<td class="px-6 py-4">
+									{% if user.role_name == 'superadmin' %}
+										<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-purple-500/30 text-purple-300 px-2.5 py-1 rounded-full">
+											<img src="{{ base }}images/icons/superadmin.svg" class="w-3 h-3" width="12" height="12">
+											SuperAdmin
+										</span>
+									{% elseif user.role_name == 'admin' %}
+										<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-brand/30 text-brand px-2.5 py-1 rounded-full">
+											<img src="{{ base }}images/icons/admin.svg" class="w-3 h-3" width="12" height="12">
+											Admin
+										</span>
+									{% else %}
+										<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-white/10 text-gray-300 px-2.5 py-1 rounded-full">
+											<img src="{{ base }}images/icons/user.svg" class="w-3 h-3" width="12" height="12">
+											User
+										</span>
+									{% endif %}
+								</td>
+								<td class="px-6 py-4">
+									{% if user.is_banned > 0 %}
+										{% if user.ban_expires_at %}
+											<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-red-500/30 text-red-300 px-2.5 py-1 rounded-full cursor-help" title="Ban vyprší: {{ user.ban_expires_at|date('d.m.Y H:i') }}&#10;Důvod: {{ user.ban_reason }}">
+												<img src="{{ base }}images/icons/ban.svg" class="w-3 h-3" width="12" height="12">
+												Zabanován
+											</span>
+										{% else %}
+											<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-red-500/30 text-red-300 px-2.5 py-1 rounded-full cursor-help" title="Permanentní ban&#10;Důvod: {{ user.ban_reason }}">
+												<img src="{{ base }}images/icons/ban.svg" class="w-3 h-3" width="12" height="12">
+												Zabanován
+											</span>
+										{% endif %}
+									{% else %}
+										<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-green-500/30 text-green-300 px-2.5 py-1 rounded-full">
+											<img src="{{ base }}images/icons/check.svg" class="w-3 h-3" width="12" height="12">
+											Aktivní
+										</span>
+									{% endif %}
+								</td>
+								<td class="px-6 py-4 text-sm text-muted">
+									{{ user.created_at|date('d.m.Y') }}
+								</td>
+								<td class="px-6 py-4">
+									<div
+										class="flex items-center justify-end gap-2">
+
+										{# Ban/Unban button #}
+										{% if user.id != currentUser.id %}
+											{% if permissions.canBanUser(currentUser.role_id, user.role_id) %}
+												{% if user.is_banned > 0 %}
+													<form method="POST" action="{{ base }}?r=admin/unban-user" class="inline">
+														<input type="hidden" name="user_id" value="{{ user.id }}">
+														<button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30">
+															Odbanovat
+														</button>
+													</form>
+												{% else %}
+													<button onclick="showBanModal({{ user.id }}, '{{ user.username }}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30">
+														Banovat
+													</button>
+												{% endif %}
+											{% endif %}
+
+											{# Change role button (only superadmin) #}
+											{% if permissions.canChangeUserRole(currentUser.role_id) %}
+												<button onclick="showRoleModal({{ user.id }}, '{{ user.username }}', {{ user.role_id }})" class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all bg-brand/20 text-brand border-brand/30 hover:bg-brand/30">
+													Změnit roli
+												</button>
+											{% endif %}
+
+											{# Delete button #}
+											{% if permissions.canDeleteUserContent(currentUser.role_id, user.role_id) %}
+												<button onclick="showDeleteModal({{ user.id }}, '{{ user.username }}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all bg-exclamation/20 text-exclamation border-exclamation/30 hover:bg-exclamation/30">
+													Smazat
+												</button>
+											{% endif %}
+										{% else %}
+											<span class="text-xs text-muted italic">Tvůj účet</span>
+										{% endif %}
+									</div>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	</div>
+
+	{# Ban modal #}
+	<div id="banModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" onclick="if(event.target === this) closeBanModal()">
+		<div class="bg-surface border border-white/12 rounded-xl p-6 max-w-md w-full mx-4">
+			<h3 class="text-xl font-bold m-0 mb-4">Banovat uživatele</h3>
+			<form method="POST" action="{{ base }}?r=admin/ban-user">
+				<input type="hidden" name="user_id" id="banUserId">
+
+				<p class="text-sm text-muted m-0 mb-4">
+					Opravdu chceš banovat uživatele
+					<span id="banUsername" class="font-semibold text-white"></span>?
+				</p>
+
+				<div class="mb-4">
+					<label class="block text-sm font-semibold mb-2">Důvod banu</label>
+					<textarea name="reason" required class="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-lg text-white focus:outline-none focus:border-brand" rows="3"></textarea>
+				</div>
+
+				<div class="mb-6">
+					<label class="block text-sm font-semibold mb-2">Délka banu</label>
+					<div id="banDurContainer" class="relative">
+						<input type="hidden" name="duration" id="banDuration" value="permanent">
+						<button id="banDurBtn" type="button" class="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-lg text-white text-left flex items-center justify-between focus:outline-none focus:border-brand">
+							<span id="banDurLabel">Permanentní</span>
+							<svg id="banDurChevron" class="w-4 h-4 ml-3 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+							</svg>
+						</button>
+						<ul id="banDurList" class="hidden absolute z-50 mt-2 w-full max-h-56 overflow-auto scrollbar-dark bg-surface border border-white/12 rounded-lg shadow-dropdown">
+							<li>
+								<button type="button" class="w-full text-left px-4 py-2 hover:bg-white/6" data-value="1 day">1 den</button>
+							</li>
+							<li>
+								<button type="button" class="w-full text-left px-4 py-2 hover:bg-white/6" data-value="7 days">7 dní</button>
+							</li>
+							<li>
+								<button type="button" class="w-full text-left px-4 py-2 hover:bg-white/6" data-value="30 days">30 dní</button>
+							</li>
+							<li>
+								<button type="button" class="w-full text-left px-4 py-2 hover:bg-white/6" data-value="permanent">Permanentní</button>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="flex gap-3">
+					<button type="button" onclick="closeBanModal()" class="flex-1 px-4 py-3 rounded-lg font-semibold border-2 transition-all bg-transparent text-gray-200 border-white/12 hover:bg-white/6">
+						Zrušit
+					</button>
+					<button type="submit" class="flex-1 px-4 py-3 rounded-lg font-semibold border-2 transition-all bg-red-500 text-white border-red-500 hover:bg-red-600">
+						Banovat
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	{# Role change modal #}
+	<div id="roleModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" onclick="if(event.target === this) closeRoleModal()">
+		<div class="bg-surface border border-white/12 rounded-xl p-6 max-w-md w-full mx-4">
+			<h3 class="text-xl font-bold m-0 mb-4">Změnit roli uživatele</h3>
+			<form method="POST" action="{{ base }}?r=admin/change-role">
+				<input type="hidden" name="user_id" id="roleUserId">
+
+				<p class="text-sm text-muted m-0 mb-4">
+					Změnit roli uživatele
+					<span id="roleUsername" class="font-semibold text-white"></span>
+				</p>
+
+				<div class="mb-6">
+					<label class="block text-sm font-semibold mb-2">Nová role</label>
+					<div id="roleSelectContainer" class="relative">
+						<input type="hidden" name="role_id" id="roleHidden" value="1">
+						<button id="roleBtn" type="button" class="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-lg text-white text-left flex items-center justify-between focus:outline-none focus:border-brand">
+							<span id="roleLabel"><img src="{{ base }}images/icons/user.svg" class="w-4 h-4 mr-2" width="16" height="16">
+								User (běžný uživatel)</span>
+							<svg id="roleChevron" class="w-4 h-4 ml-3 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+							</svg>
+						</button>
+						<ul id="roleList" class="hidden absolute z-50 mt-2 w-full max-h-56 overflow-auto scrollbar-dark bg-surface border border-white/12 rounded-lg shadow-dropdown">
+							<li>
+								<button type="button" class="w-full text-left px-4 py-2 hover:bg-white/6" data-value="1"><img src="{{ base }}images/icons/user.svg" class="w-4 h-4 mr-2" width="16" height="16">
+									User (běžný uživatel)</button>
+							</li>
+							<li>
+								<button type="button" class="w-full text-left px-4 py-2 hover:bg-white/6" data-value="2"><img src="{{ base }}images/icons/admin.svg" class="w-4 h-4 mr-2" width="16" height="16">
+									Admin (moderátor)</button>
+							</li>
+							<li>
+								<button type="button" class="w-full text-left px-4 py-2 hover:bg-white/6" data-value="3"><img src="{{ base }}images/icons/superadmin.svg" class="w-4 h-4 mr-2" width="16" height="16">
+									SuperAdmin (hlavní správce)</button>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="flex gap-3">
+					<button type="button" onclick="closeRoleModal()" class="flex-1 px-4 py-3 rounded-lg font-semibold border-2 transition-all bg-transparent text-gray-200 border-white/12 hover:bg-white/6">
+						Zrušit
+					</button>
+					<button type="submit" class="flex-1 px-4 py-3 rounded-lg font-semibold border-2 transition-all bg-brand text-white border-brand hover:bg-brand-600">
+						Změnit
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	{# Delete modal #}
+	<div id="deleteModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" onclick="if(event.target === this) closeDeleteModal()">
+		<div class="bg-surface border border-white/12 rounded-xl p-6 max-w-md w-full mx-4">
+			<h3 class="text-xl font-bold m-0 mb-4">Smazat uživatele</h3>
+			<form method="POST" action="{{ base }}?r=admin/delete-user">
+				<input type="hidden" name="user_id" id="deleteUserId">
+
+				<p class="text-sm text-muted m-0 mb-4">
+					Opravdu chceš
+					<span class="text-red-400 font-semibold">trvale smazat</span>
+					uživatele
+					<span id="deleteUsername" class="font-semibold text-white"></span>?
+				</p>
+
+				<div class="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6">
+					<p class="text-sm text-red-300 m-0">Tato akce je nevratná! Budou smazány všechny příspěvky, komentáře a hlasy tohoto uživatele.</p>
+				</div>
+
+				<div class="flex gap-3">
+					<button type="button" onclick="closeDeleteModal()" class="flex-1 px-4 py-3 rounded-lg font-semibold border-2 transition-all bg-transparent text-gray-200 border-white/12 hover:bg-white/6">
+						Zrušit
+					</button>
+					<button type="submit" class="flex-1 px-4 py-3 rounded-lg font-semibold border-2 transition-all bg-exclamation text-white border-exclamation hover:bg-red-600">
+						Smazat uživatele
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script>
+		function showBanModal(userId, username) {
+document.getElementById('banUserId').value = userId;
+document.getElementById('banUsername').textContent = username;
+document.getElementById('banModal').classList.remove('hidden');
+document.getElementById('banModal').classList.add('flex');
+}
+
+function closeBanModal() {
+document.getElementById('banModal').classList.add('hidden');
+document.getElementById('banModal').classList.remove('flex');
+}
+
+function showRoleModal(userId, username, currentRoleId) {
+document.getElementById('roleUserId').value = userId;
+document.getElementById('roleUsername').textContent = username;
+// set current role in custom dropdown
+const roleHidden = document.getElementById('roleHidden');
+const roleLabel = document.getElementById('roleLabel');
+const map = {
+1: '<img src=" {{ base }}images/icons/user.svg" class="w-4 h-4" width="16" height="16"> User (běžný uživatel)',
+2: '<img src=" {{ base }}images/icons/admin.svg" class="w-4 h-4" width="16" height="16"> Admin (moderátor)',
+3: '<img src=" {{ base }}images/icons/superadmin.svg" class="w-4 h-4" width="16" height="16"> SuperAdmin (hlavní správce)'
+};
+roleHidden.value = String(currentRoleId);
+roleLabel.innerHTML = map[currentRoleId] || map[1];
+document.getElementById('roleModal').classList.remove('hidden');
+document.getElementById('roleModal').classList.add('flex');
+}
+
+function closeRoleModal() {
+document.getElementById('roleModal').classList.add('hidden');
+document.getElementById('roleModal').classList.remove('flex');
+}
+
+function showDeleteModal(userId, username) {
+document.getElementById('deleteUserId').value = userId;
+document.getElementById('deleteUsername').textContent = username;
+document.getElementById('deleteModal').classList.remove('hidden');
+document.getElementById('deleteModal').classList.add('flex');
+}
+
+function closeDeleteModal() {
+document.getElementById('deleteModal').classList.add('hidden');
+document.getElementById('deleteModal').classList.remove('flex');
+}
+
+// Generic dropdown initializer
+function initDropdown(btnId, listId, hiddenId, labelId, chevronId) {
+const btn = document.getElementById(btnId);
+const list = document.getElementById(listId);
+const hidden = document.getElementById(hiddenId);
+const label = document.getElementById(labelId);
+const chev = document.getElementById(chevronId);
+
+if (! btn || ! list) 
+return;
+
+
+
+btn.addEventListener('click', () => {
+const isOpen = ! list.classList.contains('hidden');
+document.querySelectorAll('#' + listId).forEach(el => {}); // placeholder no-op
+if (isOpen) {
+list.classList.add('hidden');
+chev.classList.remove('rotate-180');
+} else {
+list.classList.remove('hidden');
+chev.classList.add('rotate-180');
+}
+});
+
+list.querySelectorAll('button[data-value]').forEach(item => {
+item.addEventListener('click', () => {
+const val = item.getAttribute('data-value');
+hidden.value = val;
+label.innerHTML = item.innerHTML;
+list.classList.add('hidden');
+chev.classList.remove('rotate-180');
+});
+});
+
+document.addEventListener('click', (e) => {
+if (! btn.contains(e.target) && ! list.contains(e.target)) {
+if (! list.classList.contains('hidden')) {
+list.classList.add('hidden');
+chev.classList.remove('rotate-180');
+}
+}
+});
+}
+
+// Initialize ban duration dropdown
+initDropdown('banDurBtn', 'banDurList', 'banDuration', 'banDurLabel', 'banDurChevron');
+// Initialize role dropdown
+initDropdown('roleBtn', 'roleList', 'roleHidden', 'roleLabel', 'roleChevron');
+	</script>
+{% endblock %}

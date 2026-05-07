@@ -1,0 +1,152 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[czech]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1em}
+
+\begin{document}
+
+% -----------------------------------------------------------------------------
+% 1. STRANA - Titulní strana (dle vzoru)
+% -----------------------------------------------------------------------------
+\thispagestyle{empty}
+
+\begin{minipage}[t]{0.3\textwidth}
+    \includegraphics[width=\linewidth]{logo.png}
+\end{minipage}
+
+\vspace{8cm}
+
+\begin{center}
+    {\Huge \textbf{Redakční systém - Ziggid}} \\[0.5cm] % Nahrazeno "Evidence Docházky" za relevantní název
+    {\Large \textit{KIV/WEB Semestrální práce}}
+\end{center}
+
+\vfill
+
+\begin{flushleft}
+    \begin{tabular}{ll}
+        student: & \textbf{Jaroslav Vaněček} \\
+        osobní číslo: & \textbf{A24B0284P} \\
+        email: & \textbf{jvanecek@students.zcu.cz} \\
+        datum: & 25.11.2025
+    \end{tabular}
+\end{flushleft}
+
+\newpage
+
+% -----------------------------------------------------------------------------
+% 2. STRANA - Úvod, Technologie
+% -----------------------------------------------------------------------------
+\setcounter{page}{1}
+
+\section{Úvod}
+Tato dokumentace popisuje semestrální práci zaměřenou na tvorbu webové aplikace. Jedná se o redakční systém (CMS/Blog), který umožňuje uživatelům registrovat se, vytvářet a spravovat články, komentovat je a hlasovat o nich. Aplikace rozlišuje různé uživatelské role (Běžný uživatel, Administrátor, Super administrátor) s odlišnými právy.
+
+Cílem projektu bylo vytvořit funkční webovou aplikaci s využitím moderních principů vývoje v jazyce PHP, bez použití velkých frameworků, ale s důrazem na čistou implementaci MVC architektury.
+
+\section{Použité technologie a nástroje}
+Aplikace kombinuje osvědčené backendové technologie s moderním frontendem.
+
+\subsection*{Backend}
+\begin{itemize}
+    \item \textbf{PHP 8.0+}: Jazyk použitý pro serverovou logiku. Aplikace využívá objektově orientované programování (OOP), typovou kontrolu a moderní vlastnosti jazyka.
+    \item \textbf{MySQL}: Relační databáze pro ukládání všech dat (uživatelé, články, komentáře). Pro komunikaci s databází je použito rozšíření PDO, které zajišťuje bezpečnost proti SQL Injection.
+    \item \textbf{Composer}: Nástroj pro správu závislostí v PHP. Je použit primárně pro instalaci a autoloading šablonovacího systému Twig.
+\end{itemize}
+
+\subsection*{Frontend}
+\begin{itemize}
+    \item \textbf{Twig}: Výkonný šablonovací systém pro PHP. Umožňuje oddělit logiku (PHP) od prezentace (HTML). Díky dědičnosti šablon (\texttt{extends}, \texttt{block}) je kód čistý a snadno udržovatelný. Zabraňuje také XSS útokům automatickým escapováním výstupu.
+    \item \textbf{Tailwind CSS}: Utility-first CSS framework. Místo psaní vlastních CSS tříd jsou použity předpřipravené utility třídy přímo v HTML. To umožňuje rychlý vývoj responzivního designu a konzistentní vzhled celé aplikace. Styly jsou definovány v \texttt{input.css} a kompilovány do výsledného \texttt{style.css}.
+    \item \textbf{JavaScript}: Použit pro interaktivní prvky na straně klienta, jako je validace formulářů před odesláním, dynamické prvky UI nebo asynchronní požadavky.
+    \item \textbf{HTML5}: Sémantická struktura stránek.
+\end{itemize}
+
+\newpage
+
+% -----------------------------------------------------------------------------
+% 3. STRANA - Architektura, Struktura projektu
+% -----------------------------------------------------------------------------
+
+\section{Architektura aplikace (MVC)}
+Projekt je striktně navržen podle architektonického vzoru \textbf{Model-View-Controller (MVC)}, což zajišťuje přehlednost a rozšiřitelnost kódu.
+
+\begin{itemize}
+    \item \textbf{Model (Datová vrstva):} Třídy ve složce \texttt{models/} (např. \texttt{User}, \texttt{Post}, \texttt{Category}) reprezentují entity reálného světa. Obsahují metody pro získávání a ukládání dat do databáze. Neobsahují žádnou logiku pro zobrazení.
+    \item \textbf{View (Prezentační vrstva):} Šablony ve složce \texttt{views/} (soubory \texttt{.twig}). Starají se pouze o to, jak data zobrazit uživateli. Dostávají data od Controlleru a vykreslují HTML.
+    \item \textbf{Controller (Řídicí vrstva):} Třídy ve složce \texttt{controllers/} (např. \texttt{PostsController}, \texttt{AuthController}). Přijímají HTTP požadavky, validují vstupy, volají metody Modelů pro získání dat a následně vyberou správný View pro zobrazení odpovědi.
+\end{itemize}
+
+\section{Struktura projektu}
+Adresářová struktura odpovídá MVC rozdělení:
+
+\begin{itemize}
+    \item \texttt{config/} - Konfigurace (připojení k DB).
+    \item \texttt{controllers/} - Logika aplikace (obsluha požadavků).
+    \item \texttt{core/} - Jádro systému (Router, Database wrapper).
+    \item \texttt{models/} - Práce s daty.
+    \item \texttt{views/} - Šablony vzhledu (Twig).
+    \item \texttt{assets/} - Soubory javascriptu.
+    \item \texttt{index.php} - Vstupní bod (Front Controller), který směruje všechny požadavky.
+\end{itemize}
+
+\section{Databázové schéma}
+Data jsou strukturována v relační databázi s důrazem na integritu dat (cizí klíče).
+
+\begin{itemize}
+    \item \textbf{users}: Uživatelé systému (email, heslo, role).
+    \item \textbf{user\_roles}: Číselník rolí uživatelů definující oprávnění (User, Admin, Superadmin).
+    \item \textbf{categories}: Tematické kategorie článků.
+    \item \textbf{posts}: Články blogu s vazbou na autora a kategorii.
+    \item \textbf{comments}: Hierarchické komentáře pod články.
+    \item \textbf{post\_votes}: Hlasování (líbí/nelíbí) s kontrolou duplicity hlasů.
+    \item \textbf{user\_bans}: Systém pro banování uživatelů administrátory.
+\end{itemize}
+
+\newpage
+
+% -----------------------------------------------------------------------------
+% 4. STRANA - Funkcionalita
+% -----------------------------------------------------------------------------
+
+\section{Funkcionalita aplikace}
+
+Aplikace poskytuje funkce rozdělené podle úrovně oprávnění:
+
+\subsection*{Návštěvník (Nepřihlášený)}
+\begin{itemize}
+    \item Prohlížení veřejného obsahu (články, komentáře).
+    \item Filtrace článků podle kategorií.
+    \item Registrace a přihlášení.
+\end{itemize}
+
+\subsection*{Registrovaný uživatel}
+\begin{itemize}
+    \item \textbf{Správa obsahu:} Vytváření, editace a mazání vlastních článků.
+    \item \textbf{Interakce:} Přidávání komentářů, hlasování o článcích.
+    \item \textbf{Profil:} Úprava profilu a nahrávání profilového obrázku (avatara).
+\end{itemize}
+
+\subsection*{Administrátor}
+\begin{itemize}
+    \item \textbf{Moderace:} Mazání nevhodných článků a komentářů od jakéhokoliv uživatele.
+    \item \textbf{Správa kategorií:} Vytváření a úprava kategorií článků.
+    \item \textbf{Správa uživatelů:} Možnost udělit dočasný nebo trvalý ban uživatelům porušujícím pravidla.
+\end{itemize}
+
+\end{document}

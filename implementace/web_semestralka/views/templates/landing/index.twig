@@ -1,0 +1,92 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+	{#hero section#}
+	<section class="py-20 lg:py-28">
+		<div class="max-w-[1100px] mx-auto px-5 text-center">
+			<h1 class="text-4xl lg:text-6xl font-extrabold leading-tight m-0 mb-4 bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">
+				Propoj se s komunitou
+			</h1>
+			<p class="text-muted text-lg lg:text-xl max-w-2xl mx-auto m-0 mb-8">
+				Sdílej své myšlenky, diskutuj o tématech která tě zajímají a objevuj inspirativní obsah od ostatních
+			</p>
+			<div class="flex gap-4 justify-center flex-wrap">
+				{% if isLoggedIn %}
+					<a class="inline-flex items-center gap-2 px-5 py-3 rounded-xl no-underline font-semibold border-2 transition-all duration-150 bg-brand text-white border-brand shadow-brand hover:bg-brand-600 hover:border-brand-600" href="{{ base }}?r=home">
+						<span class="text-xl"></span>
+						Prohlížet feed
+					</a>
+					<a class="inline-flex items-center gap-2 px-5 py-3 rounded-xl no-underline font-semibold border-2 transition-all duration-150 bg-transparent text-gray-200 border-white/20 hover:bg-white/[.06]" href="{{ base }}?r=posts&action=create">
+						<img src="{{ base }}images/icons/pencil.svg" class="w-5 h-5" width="20" height="20" alt="Edit">
+						Vytvořit příspěvek
+					</a>
+				{% else %}
+					<a class="inline-flex items-center gap-2 px-5 py-3 rounded-xl no-underline font-semibold border-2 transition-all duration-150 bg-brand text-white border-brand shadow-brand hover:bg-brand-600 hover:border-brand-600" href="{{ base }}auth/register">
+						<span class="text-xl"><img src="{{ base }}images/icons/rocket.svg" class="w-5 h-5" width="20" height="20" alt="Rocket"></span>
+						Začni teď zdarma
+					</a>
+					<a class="inline-flex items-center gap-2 px-5 py-3 rounded-xl no-underline font-semibold border-2 transition-all duration-150 bg-transparent text-gray-200 border-white/20 hover:bg-white/[.06]" href="{{ base }}auth/login">
+						Už mám účet
+					</a>
+				{% endif %}
+			</div>
+		</div>
+	</section>
+
+	{#features section#}
+	<section class="max-w-[1100px] mx-auto px-5 py-12">
+		<h2 class="text-3xl font-bold text-center mb-10">Co tě na Ziggid čeká?</h2>
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+			<div class="bg-gradient-to-b from-white/[.04] to-white/[.02] border border-white/[.08] rounded-xl p-6 hover:border-brand/50 transition-all">
+				<h3 class="text-xl font-bold m-0 mb-2">Diskuze a komentáře</h3>
+				<p class="m-0 text-muted">Zapoj se do živých diskuzí, odpovídej na komentáře a propojuj se s komunitou</p>
+			</div>
+
+			<div class="bg-gradient-to-b from-white/[.04] to-white/[.02] border border-white/[.08] rounded-xl p-6 hover:border-brand/50 transition-all">
+				<h3 class="text-xl font-bold m-0 mb-2">Hlasování obsahu</h3>
+				<p class="m-0 text-muted">Upvotuj kvalitní příspěvky a pomoz objevovat nejlepší obsah</p>
+			</div>
+
+			<div class="bg-gradient-to-b from-white/[.04] to-white/[.02] border border-white/[.08] rounded-xl p-6 hover:border-brand/50 transition-all">
+				<h3 class="text-xl font-bold m-0 mb-2">Sdílení s obrázky</h3>
+				<p class="m-0 text-muted">Přidávej fotky ke svým příspěvkům a udělej je vizuálně zajímavější</p>
+			</div>
+
+			<div class="bg-gradient-to-b from-white/[.04] to-white/[.02] border border-white/[.08] rounded-xl p-6 hover:border-brand/50 transition-all">
+				<h3 class="text-xl font-bold m-0 mb-2">Kategorie a témata</h3>
+				<p class="m-0 text-muted">Organizuj obsah do kategorií a sleduj jen ta témata, která tě baví</p>
+			</div>
+
+			<div class="bg-gradient-to-b from-white/[.04] to-white/[.02] border border-white/[.08] rounded-xl p-6 hover:border-brand/50 transition-all">
+				<h3 class="text-xl font-bold m-0 mb-2">Bezpečná komunita</h3>
+				<p class="m-0 text-muted">Moderovaný obsah a systém rolí zajišťuje bezpečné prostředí</p>
+			</div>
+
+			<div class="bg-gradient-to-b from-white/[.04] to-white/[.02] border border-white/[.08] rounded-xl p-6 hover:border-brand/50 transition-all">
+				<h3 class="text-xl font-bold m-0 mb-2">Rychlý a moderní</h3>
+				<p class="m-0 text-muted">Rychlé načítání, moderní design a skvělá uživatelská zkušenost</p>
+			</div>
+
+		</div>
+	</section>
+
+	{#cta section#}
+	<section class="max-w-[1100px] mx-auto px-5 py-16 text-center">
+		<div class="bg-gradient-to-br from-brand/20 to-accent/20 border border-brand/30 rounded-2xl p-10">
+			<h2 class="text-3xl lg:text-4xl font-extrabold m-0 mb-4">Připraven se zapojit?</h2>
+			<p class="text-muted text-lg max-w-xl mx-auto mb-6">
+				Připoj se k tisícům uživatelů, kteří už objevili Ziggid jako své oblíbené místo pro sdílení a diskuzi
+			</p>
+			{% if not isLoggedIn %}
+				<a class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl no-underline font-bold text-lg border-2 transition-all duration-150 bg-brand text-white border-brand shadow-brand hover:bg-brand-600 hover:border-brand-600" href="{{ base }}auth/register">
+					Vytvořit účet zdarma →
+				</a>
+			{% else %}
+				<a class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl no-underline font-bold text-lg border-2 transition-all duration-150 bg-brand text-white border-brand shadow-brand hover:bg-brand-600 hover:border-brand-600" href="{{ base }}?r=home">
+					Prohlížet příspěvky →
+				</a>
+			{% endif %}
+		</div>
+	</section>
+{% endblock %}

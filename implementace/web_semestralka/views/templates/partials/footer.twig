@@ -1,0 +1,7 @@
+{#site footer#}
+<footer class="border-t border-white/[.08] mt-10">
+  <div class="max-w-[1100px] mx-auto px-5">
+    <p class="text-center text-muted text-sm py-[18px] m-0">© {{ year|default('2025') }} Ziggid - Semestrální práce KIV/WEB</p>
+    {% block footer_extra %}{% endblock %}
+  </div>
+</footer>

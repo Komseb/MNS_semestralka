@@ -1,0 +1,145 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+<div class="max-w-[1200px] mx-auto px-5 py-8">
+  
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold m-0 mb-2">Správa kategorií</h1>
+      <p class="text-muted m-0">Vytváření, úprava a mazání kategorií</p>
+    </div>
+    <a href="{{ base }}?r=admin" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg no-underline font-semibold border-2 transition-all bg-transparent text-gray-200 border-white/12 hover:bg-white/6">
+      ← Zpět na dashboard
+    </a>
+  </div>
+
+  {% if success %}
+  <div class="bg-green-500/20 border border-green-500/50 text-green-300 px-4 py-3 rounded-lg mb-6">
+    {{ success }}
+  </div>
+  {% endif %}
+  {% if error %}
+  <div class="bg-red-500/20 border border-red-500/50 text-red-300 px-4 py-3 rounded-lg mb-6">
+    {{ error }}
+  </div>
+  {% endif %}
+
+  {# Create category form #}
+  <div class="bg-surface rounded-xl border border-white/12 p-6 mb-6">
+    <h2 class="text-xl font-bold mb-4">Vytvořit novou kategorii</h2>
+    <form method="POST" action="{{ base }}?r=admin/create-category" class="grid gap-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Název *</label>
+          <input type="text" name="name" required maxlength="100" 
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all focus:border-brand"
+                 placeholder="Název kategorie">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Popis</label>
+          <input type="text" name="description" maxlength="255"
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all focus:border-brand"
+                 placeholder="Krátký popis kategorie">
+        </div>
+      </div>
+      <div>
+        <button type="submit" class="px-5 py-2.5 rounded-xl bg-brand text-white font-semibold hover:bg-brand-600 transition-colors">
+          Vytvořit kategorii
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {# Categories list #}
+  <div class="bg-surface rounded-xl border border-white/12 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-white/5 border-b border-white/8">
+          <tr>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-300">ID</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-300">Název</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-300">Slug</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-300">Popis</th>
+            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-300">Akce</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/8">
+          {% for category in categories %}
+          <tr class="hover:bg-white/5 transition-colors">
+            <td class="px-4 py-3 text-sm text-gray-400">{{ category.id }}</td>
+            <td class="px-4 py-3 text-sm font-medium text-gray-200">{{ category.name }}</td>
+            <td class="px-4 py-3 text-sm text-gray-400">{{ category.slug }}</td>
+            <td class="px-4 py-3 text-sm text-gray-400">{{ category.description|default('—') }}</td>
+            <td class="px-4 py-3 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <button onclick="openEditModal({{ category.id }}, '{{ category.name|e('js') }}', '{{ category.description|e('js') }}')" 
+                        class="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors text-sm font-medium">
+                  Upravit
+                </button>
+                <form method="POST" action="{{ base }}?r=admin/delete-category" class="inline" onsubmit="return confirm('Opravdu chcete smazat tuto kategorii? Všechny příspěvky v ní budou také smazány.')">
+                  <input type="hidden" name="id" value="{{ category.id }}">
+                  <button type="submit" class="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors text-sm font-medium">
+                    Smazat
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+{# Edit modal #}
+<div id="edit-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-surface rounded-xl border border-white/12 p-6 max-w-md w-full">
+    <h2 class="text-xl font-bold mb-4">Upravit kategorii</h2>
+    <form method="POST" action="{{ base }}?r=admin/edit-category">
+      <input type="hidden" name="id" id="edit-id">
+      <div class="grid gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Název *</label>
+          <input type="text" name="name" id="edit-name" required maxlength="100"
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all focus:border-brand">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Popis</label>
+          <input type="text" name="description" id="edit-description" maxlength="255"
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all focus:border-brand">
+        </div>
+        <div class="flex gap-3">
+          <button type="submit" class="flex-1 px-5 py-2.5 rounded-xl bg-brand text-white font-semibold hover:bg-brand-600 transition-colors">
+            Uložit
+          </button>
+          <button type="button" onclick="closeEditModal()" class="flex-1 px-5 py-2.5 rounded-xl bg-white/8 text-gray-200 font-semibold hover:bg-white/12 transition-colors">
+            Zrušit
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openEditModal(id, name, description) {
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-name').value = name;
+  document.getElementById('edit-description').value = description || '';
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.add('hidden');
+}
+
+// Close modal on backdrop click
+document.getElementById('edit-modal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeEditModal();
+  }
+});
+</script>
+{% endblock %}

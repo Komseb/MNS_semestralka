@@ -1,0 +1,36 @@
+#disable multiviews to avoid content negotiation interfering with rewrites
+Options -MultiViews
+
+#prevent directory listing
+Options -Indexes
+
+#default document
+DirectoryIndex index.php
+
+#enable mod_rewrite
+RewriteEngine On
+
+#set base to project subfolder
+#set base to project subfolder or root
+#---------------------------------
+RewriteBase /
+#RewriteBase /web_semestralka
+#---------------------------------
+
+#serve existing files and directories directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+#route empty path to landing page
+RewriteRule ^$ index.php?r=landing/index [QSA,L]
+
+#rewrite all other requests to front controller using r param
+RewriteRule ^(.+)$ index.php?r=$1 [QSA,L]
+
+#protect sensitive files
+<FilesMatch "^(composer\.json|composer\.lock|\.env|\.env\.local|README\.md)$">
+  Require all denied
+</FilesMatch>
+
+AddType application/x-httpd-php .php .phtml

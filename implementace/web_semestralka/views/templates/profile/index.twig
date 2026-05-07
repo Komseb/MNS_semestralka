@@ -1,0 +1,220 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+	<div
+		class="max-w-[900px] mx-auto px-5 py-8">
+
+		{# Header #}
+		<div class="mb-8">
+			<h1 class="text-3xl font-bold m-0 mb-2">Můj profil</h1>
+			<p class="text-muted m-0">Spravuj svůj účet a nastavení</p>
+		</div>
+
+		{# Success/Error messages #}
+		{% if success %}
+			<div class="bg-green-500/20 border border-green-500/50 rounded-xl p-4 mb-6 flex items-center">
+				<img src="{{ base }}images/icons/check.svg" alt="Success" class="w-5 h-5 mr-3 shrink-0">
+				<p class="text-green-300 m-0">{{ success }}</p>
+			</div>
+		{% endif %}
+
+		{% if error %}
+			<div class="bg-red-500/20 border border-red-500/50 rounded-xl p-4 mb-6 flex items-center">
+				<img src="{{ base }}images/icons/cross.svg" alt="Error" class="w-5 h-5 mr-3 shrink-0">
+				<p class="text-red-300 m-0">{{ error }}</p>
+			</div>
+		{% endif %}
+
+		<div
+			class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+			{# Avatar section #}
+			<div class="md:col-span-1">
+				<div class="bg-linear-to-b from-white/4 to-white/2 border border-white/8 rounded-xl p-6">
+					<h2 class="text-lg font-bold m-0 mb-4">Profilový obrázek</h2>
+
+					<div class="flex flex-col items-center">
+						{% if user.avatar %}
+							<img src="{{ base }}{{ user.avatar }}" alt="{{ user.username }}" class="w-32 h-32 rounded-full object-cover mb-4 border-2 border-brand">
+						{% else %}
+							<div class="w-32 h-32 rounded-full bg-gradient-to-br from-brand to-accent flex items-center justify-center text-4xl font-extrabold text-[#0a0a0a] mb-4">
+								{{ user.username|slice(0, 1)|upper }}
+							</div>
+						{% endif %}
+
+						<p class="text-sm text-center text-muted mb-4">
+							Maximální velikost: 2MB<br>
+							Formáty: JPG, PNG, GIF, WEBP
+						</p>
+
+						<form method="POST" enctype="multipart/form-data" class="w-full">
+							<input type="hidden" name="action" value="upload_avatar">
+							<input type="file" name="avatar" id="avatarInput" accept="image/*" class="hidden" onchange="this.form.submit()">
+							<button type="button" onclick="document.getElementById('avatarInput').click()" class="w-full px-4 py-2.5 rounded-lg font-semibold border-2 transition-all bg-brand text-white border-brand hover:bg-brand-600 mb-2">
+								Nahrát nový obrázek
+							</button>
+						</form>
+
+						{% if user.avatar %}
+							<form method="POST" class="w-full">
+								<input type="hidden" name="action" value="remove_avatar">
+								<button type="submit" class="w-full px-4 py-2.5 rounded-lg font-semibold border-2 transition-all bg-transparent text-gray-200 border-white/12 hover:bg-white/6">
+									Odstranit obrázek
+								</button>
+							</form>
+						{% endif %}
+					</div>
+				</div>
+
+				{# User info #}
+				<div class="bg-linear-to-b from-white/4 to-white/2 border border-white/8 rounded-xl p-6 mt-6">
+					<h2 class="text-lg font-bold m-0 mb-4">Informace o účtu</h2>
+					<div class="space-y-3">
+						<div>
+							<p class="text-xs text-muted m-0 mb-1">Uživatelské jméno</p>
+							<p class="text-sm font-semibold m-0">{{ user.username }}</p>
+						</div>
+						<div>
+							<p class="text-xs text-muted m-0 mb-1">Role</p>
+							<p class="text-sm m-0">
+								{% if user.role == 'superadmin' %}
+									<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-purple-500/30 text-purple-300 px-2.5 py-1 rounded-full">
+										<img src="{{ base }}images/icons/superadmin.svg" class="w-3 h-3" width="12" height="12"> SuperAdmin
+									</span>
+								{% elseif user.role == 'admin' %}
+									<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-brand/30 text-brand px-2.5 py-1 rounded-full">
+										<img src="{{ base }}images/icons/admin.svg" class="w-3 h-3" width="12" height="12"> Admin
+									</span>
+								{% else %}
+									<span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-white/10 text-gray-300 px-2.5 py-1 rounded-full">
+										<img src="{{ base }}images/icons/user.svg" class="w-3 h-3" width="12" height="12"> User
+									</span>
+								{% endif %}
+							</p>
+						</div>
+						<div>
+							<p class="text-xs text-muted m-0 mb-1">Registrován</p>
+							<p class="text-sm m-0">{{ user.created_at|date('d.m.Y') }}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{# Forms section #}
+			<div
+				class="md:col-span-2 space-y-6">
+				{# Change username #}
+				<div class="bg-linear-to-b from-white/4 to-white/2 border border-white/8 rounded-xl p-6">
+					<h2 class="text-lg font-bold m-0 mb-4">Změnit uživatelské jméno</h2>
+					<form method="POST">
+						<input type="hidden" name="action" value="update_username">
+
+						<div class="mb-4">
+							<label class="block text-sm font-semibold mb-2">Současné jméno</label>
+							<input type="text" value="{{ user.username }}" disabled class="w-full px-4 py-3 bg-white/3 border border-white/8 rounded-lg text-muted">
+						</div>
+
+						<div class="mb-4">
+							<label class="block text-sm font-semibold mb-2">Nové uživatelské jméno</label>
+							<input type="text" name="new_username" required minlength="3" maxlength="30" pattern="[A-Za-z0-9._-]{3,30}" class="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-lg text-white focus:outline-none focus:border-brand">
+							<p class="text-xs text-muted mt-1">3–30 znaků: písmena, čísla, tečka, podtržítko, pomlčka</p>
+						</div>
+
+						<div class="mb-6">
+							<label class="block text-sm font-semibold mb-2">Heslo pro potvrzení</label>
+							<input type="password" name="password" required class="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-lg text-white focus:outline-none focus:border-brand">
+						</div>
+
+						<button type="submit" class="px-6 py-3 rounded-lg font-semibold border-2 transition-all bg-brand text-white border-brand hover:bg-brand-600">Uložit nové jméno</button>
+					</form>
+				</div>
+
+				{# Change email #}
+				<div class="bg-linear-to-b from-white/4 to-white/2 border border-white/8 rounded-xl p-6">
+					<h2 class="text-lg font-bold m-0 mb-4">Změnit email</h2>
+					<form method="POST">
+						<input type="hidden" name="action" value="update_email">
+
+						<div class="mb-4">
+							<label class="block text-sm font-semibold mb-2">Současný email</label>
+							<input type="text" value="{{ user.email }}" disabled class="w-full px-4 py-3 bg-white/3 border border-white/8 rounded-lg text-muted">
+						</div>
+
+						<div class="mb-4">
+							<label class="block text-sm font-semibold mb-2">Nový email</label>
+							<input type="email" name="email" required class="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-lg text-white focus:outline-none focus:border-brand">
+						</div>
+
+						<div class="mb-6">
+							<label class="block text-sm font-semibold mb-2">Heslo pro potvrzení</label>
+							<input type="password" name="password" required class="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-lg text-white focus:outline-none focus:border-brand">
+						</div>
+
+						<button type="submit" class="px-6 py-3 rounded-lg font-semibold border-2 transition-all bg-brand text-white border-brand hover:bg-brand-600">
+							Uložit nový email
+						</button>
+					</form>
+				</div>
+
+				{# Change password #}
+				<div class="bg-linear-to-b from-white/4 to-white/2 border border-white/8 rounded-xl p-6">
+					<h2 class="text-lg font-bold m-0 mb-4">Změnit heslo</h2>
+					<form method="POST" id="passwordForm">
+						<input type="hidden" name="action" value="update_password">
+
+						<div class="mb-4">
+							<label class="block text-sm font-semibold mb-2">Současné heslo</label>
+							<input type="password" name="current_password" required class="w-full px-4 py-3 bg-white/6 border border-white/12 rounded-lg text-white focus:outline-none focus:border-brand">
+						</div>
+
+						<div class="mb-4">
+							<label class="block text-sm font-semibold mb-2">Nové heslo</label>
+							<input type="password" name="new_password" id="newPassword" required minlength="8" class="w-full px-3.5 py-3.5 rounded-xl border border-white/[.14] bg-gradient-to-b from-white/[.05] to-white/[.03] text-gray-200 outline-none transition-all caret-accent placeholder:text-muted placeholder:opacity-85 focus:border-brand focus:shadow-ring focus:shadow-[inset_0_1px_0_rgba(255,255,255,.05)]">
+
+							<ul class="pwd-req list-none p-2 pt-2 m-0 grid gap-1.5 text-[13px]">
+								<li data-rule="len" class="flex items-center gap-2 text-muted">
+									<span class="dot"></span>Minimálně 8 znaků
+								</li>
+								<li data-rule="lower" class="flex items-center gap-2 text-muted">
+									<span class="dot"></span>Malé písmeno
+								</li>
+								<li data-rule="upper" class="flex items-center gap-2 text-muted">
+									<span class="dot"></span>Velké písmeno
+								</li>
+								<li data-rule="num" class="flex items-center gap-2 text-muted">
+									<span class="dot"></span>Číslo
+								</li>
+								<li data-rule="spec" class="flex items-center gap-2 text-muted">
+									<span class="dot"></span>Speciální znak
+								</li>
+							</ul>
+						</div>
+
+						<div class="mb-6">
+							<label class="block text-sm font-semibold mb-2">Potvrzení nového hesla</label>
+							<input type="password" name="confirm_password" id="confirmPassword" required minlength="8" class="w-full px-3.5 py-3.5 rounded-xl border border-white/[.14] bg-gradient-to-b from-white/[.05] to-white/[.03] text-gray-200 outline-none transition-all caret-accent placeholder:text-muted placeholder:opacity-85 focus:border-brand focus:shadow-ring focus:shadow-[inset_0_1px_0_rgba(255,255,255,.05)]">
+						</div>
+
+						<button type="submit" id="submitPassword" class="px-6 py-3 rounded-lg font-semibold border-2 transition-all bg-brand text-white border-brand hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed">
+							Změnit heslo
+						</button>
+					</form>
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+{% endblock %}
+
+{% block scripts %}
+	<script src="{{ base }}assets/js/auth.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+if (window.initPasswordRequirements) {
+initPasswordRequirements('#newPassword', '#confirmPassword', '#submitPassword', '#passwordForm');
+}
+});
+	</script>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+	<div class="max-w-[1200px] mx-auto px-5 py-8">
+
+		<div class="mb-8 flex items-center justify-between">
+			<div>
+				<h1 class="text-3xl font-bold m-0 mb-2">Systémové nastavení</h1>
+				<p class="text-muted m-0">Správa platformy a statistiky</p>
+			</div>
+			<a href="{{ base }}?r=admin" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg no-underline font-semibold border-2 transition-all bg-transparent text-gray-200 border-white/12 hover:bg-white/6">
+				← Zpět na dashboard
+			</a>
+		</div>
+
+		{% if success %}
+			<div class="bg-green-500/20 border border-green-500/50 text-green-300 px-4 py-3 rounded-lg mb-6">
+				{{ success }}
+			</div>
+		{% endif %}
+		{% if error %}
+			<div class="bg-red-500/20 border border-red-500/50 text-red-300 px-4 py-3 rounded-lg mb-6">
+				{{ error }}
+			</div>
+		{% endif %}
+
+		{# Statistics cards #}
+		<div class="grid md:grid-cols-4 gap-4 mb-8">
+			<div class="bg-surface rounded-xl border border-white/12 p-6">
+				<div class="flex items-center gap-3 mb-2">
+					<div class="w-10 h-10 rounded-lg bg-brand/20 flex items-center justify-center">
+						<img src="{{ base }}images/icons/users.svg" class="w-6 h-6" width="24" height="24" alt="Users">
+					</div>
+					<div>
+						<p class="text-sm text-muted m-0">Celkem uživatelů</p>
+						<p class="text-2xl font-bold m-0">{{ stats.totalUsers }}</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="bg-surface rounded-xl border border-white/12 p-6">
+				<div class="flex items-center gap-3 mb-2">
+					<div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+						<img src="{{ base }}images/icons/posts.svg" class="w-6 h-6" width="24" height="24" alt="Posts">
+					</div>
+					<div>
+						<p class="text-sm text-muted m-0">Celkem příspěvků</p>
+						<p class="text-2xl font-bold m-0">{{ stats.totalPosts }}</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="bg-surface rounded-xl border border-white/12 p-6">
+				<div class="flex items-center gap-3 mb-2">
+					<div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+						<img src="{{ base }}images/icons/categories.svg" class="w-6 h-6" width="24" height="24" alt="Categories">
+					</div>
+					<div>
+						<p class="text-sm text-muted m-0">Celkem kategorií</p>
+						<p class="text-2xl font-bold m-0">{{ stats.totalCategories }}</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="bg-surface rounded-xl border border-white/12 p-6">
+				<div class="flex items-center gap-3 mb-2">
+					<div class="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
+						<img src="{{ base }}images/icons/ban.svg" class="w-6 h-6" width="24" height="24" alt="Banned">
+					</div>
+					<div>
+						<p class="text-sm text-muted m-0">Zabanovaní</p>
+						<p class="text-2xl font-bold m-0">{{ stats.bannedUsers }}</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{# System information #}
+		<div class="bg-surface rounded-xl border border-white/12 p-6 mb-6">
+			<h2 class="text-xl font-bold mb-4">Informace o systému</h2>
+			<div class="grid md:grid-cols-2 gap-6">
+				<div>
+					<h3 class="text-sm font-semibold text-gray-300 mb-3">Platforma</h3>
+					<div class="space-y-2">
+						<div class="flex justify-between py-2 border-b border-white/8">
+							<span class="text-sm text-muted">Název</span>
+							<span class="text-sm font-medium">Ziggid</span>
+						</div>
+						<div class="flex justify-between py-2 border-b border-white/8">
+							<span class="text-sm text-muted">Verze</span>
+							<span class="text-sm font-medium">1.0.0</span>
+						</div>
+						<div class="flex justify-between py-2 border-b border-white/8">
+							<span class="text-sm text-muted">PHP Verze</span>
+							<span class="text-sm font-medium">{{ constant('PHP_VERSION') }}</span>
+						</div>
+					</div>
+				</div>
+				<div>
+					<h3 class="text-sm font-semibold text-gray-300 mb-3">Limity</h3>
+					<div class="space-y-2">
+						<div class="flex justify-between py-2 border-b border-white/8">
+							<span class="text-sm text-muted">Max. velikost uploadu</span>
+							<span class="text-sm font-medium">5 MB</span>
+						</div>
+						<div class="flex justify-between py-2 border-b border-white/8">
+							<span class="text-sm text-muted">Příspěvků na stránku</span>
+							<span class="text-sm font-medium">10</span>
+						</div>
+						<div class="flex justify-between py-2 border-b border-white/8">
+							<span class="text-sm text-muted">Povolené formáty</span>
+							<span class="text-sm font-medium">JPG, PNG, GIF, WEBP</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{# Quick actions #}
+		<div class="bg-surface rounded-xl border border-white/12 p-6">
+			<h2 class="text-xl font-bold mb-4">Rychlé akce</h2>
+			<div class="grid md:grid-cols-3 gap-4">
+				<a href="{{ base }}?r=admin/users" class="block p-4 rounded-lg border border-white/12 hover:border-brand hover:bg-white/5 transition-all no-underline">
+					<div class="flex items-center gap-3">
+						<img src="{{ base }}images/icons/users.svg" class="w-8 h-8" width="32" height="32" alt="Users">
+						<div>
+							<h3 class="font-semibold m-0">Správa uživatelů</h3>
+							<p class="text-sm text-muted m-0">Banování, role, mazání</p>
+						</div>
+					</div>
+				</a>
+
+				<a href="{{ base }}?r=admin/posts" class="block p-4 rounded-lg border border-white/12 hover:border-brand hover:bg-white/5 transition-all no-underline">
+					<div class="flex items-center gap-3">
+						<img src="{{ base }}images/icons/posts.svg" class="w-8 h-8" width="32" height="32" alt="Posts">
+						<div>
+							<h3 class="font-semibold m-0">Správa příspěvků</h3>
+							<p class="text-sm text-muted m-0">Moderace obsahu</p>
+						</div>
+					</div>
+				</a>
+
+				<a href="{{ base }}?r=admin/categories" class="block p-4 rounded-lg border border-white/12 hover:border-brand hover:bg-white/5 transition-all no-underline">
+					<div class="flex items-center gap-3">
+						<img src="{{ base }}images/icons/categories.svg" class="w-8 h-8" width="32" height="32" alt="Categories">
+						<div>
+							<h3 class="font-semibold m-0">Správa kategorií</h3>
+							<p class="text-sm text-muted m-0">Vytváření a úprava témat</p>
+						</div>
+					</div>
+				</a>
+			</div>
+		</div>
+
+	</div>
+{% endblock %}

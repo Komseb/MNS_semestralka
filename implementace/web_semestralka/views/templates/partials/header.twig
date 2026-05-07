@@ -1,0 +1,67 @@
+{#site header with navigation#}
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xs border-b border-white/[.06]">
+  <div class="max-w-[1100px] mx-auto px-5 flex items-center justify-between h-16">
+    <a class="inline-flex items-center gap-2.5 text-white no-underline font-bold tracking-wide -ml-1.5" href="{{ base }}?r=landing">
+      <img src="{{ base }}images/logo_round_small.png" alt="ziggid logo" class="w-[60px] h-[60px] lg:w-11 lg:h-11 object-cover rounded-full" />
+      <span class="font-brand font-extrabold text-gray-200 text-sm lg:text-base">Ziggid</span>
+    </a>
+    <nav class="hidden lg:flex gap-[18px]">
+      <a href="{{ base }}?r=landing" class="text-gray-200 no-underline px-2.5 py-2 rounded-lg hover:bg-white/6">Domů</a>
+      <a href="{{ base }}?r=home" class="text-gray-200 no-underline px-2.5 py-2 rounded-lg hover:bg-white/6">Feed</a>
+      <a href="{{ base }}?r=categories" class="text-gray-200 no-underline px-2.5 py-2 rounded-lg hover:bg-white/6">Témata</a>
+    </nav>
+    <div class="flex gap-2.5 items-center -mr-1.5">
+      {# Mobile menu button - show only below lg (1024px) #}
+      <button id="mobile-menu-btn" class="block lg:hidden p-2 text-gray-200 hover:bg-white/6 rounded-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+      {% if isLoggedIn %}
+        <div class="profile-menu relative">
+          <button class="flex items-center gap-2.5 bg-white/[.06] border border-white/[.12] text-gray-200 px-2.5 py-2 rounded-full cursor-pointer hover:bg-white/[.08]" aria-haspopup="true" aria-expanded="false">
+            {% if userAvatar %}
+              <img src="{{ base }}{{ userAvatar }}" alt="{{ userName }}" class="w-7 h-7 rounded-full object-cover border border-white/20">
+            {% else %}
+              <span class="inline-grid place-items-center w-7 h-7 rounded-full bg-gradient-to-br from-brand to-accent text-[#0a0a0a] font-extrabold text-sm">{{ userInitials|default('U') }}</span>
+            {% endif %}
+            <span class="hidden sm:inline">{{ userName|default('uzivatel') }}</span>
+            <span class="opacity-70 text-xs">▼</span>
+          </button>
+          <div class="dropdown absolute right-0 top-full mt-2 min-w-[220px] bg-surface border border-white/[.08] rounded-xl shadow-dropdown p-2 hidden">
+            <a href="{{ base }}?r=profile" class="block text-gray-200 no-underline px-3 py-2.5 rounded-lg hover:bg-white/[.06]">Můj profil</a>
+            {% if userRole == 'admin' or userRole == 'superadmin' %}
+              <a href="{{ base }}?r=admin" class="block text-brand no-underline px-3 py-2.5 rounded-lg hover:bg-white/[.06] font-semibold">Admin Panel</a>
+            {% endif %}
+            <a href="{{ base }}auth/logout" class="block text-exclamation no-underline px-3 py-2.5 rounded-lg hover:bg-white/[.06] font-bold">Odhlásit se</a>
+          </div>
+        </div>
+      {% else %}
+        <a class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-[10px] no-underline font-semibold border transition-all duration-150 bg-transparent text-gray-200 border-white/[.12] hover:bg-white/[.06]" href="{{ base }}auth/login">Přihlášení</a>
+        <a class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-[10px] no-underline font-semibold border transition-all duration-150 bg-brand text-white border-transparent shadow-brand hover:bg-brand-600" href="{{ base }}auth/register">Registrace</a>
+      {% endif %}
+    </div>
+  </div>
+  
+</header>
+
+{# Mobile navigation menu #}
+<nav id="mobile-menu" class="hidden lg:hidden fixed inset-x-0 top-16 bottom-0 bg-surface/95 backdrop-blur-sm border-t border-white/8 p-5 z-40 overflow-y-auto">
+  <div class="flex flex-col gap-2">
+    <a href="{{ base }}?r=landing" class="text-gray-200 no-underline px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 font-semibold border border-white/5">Domů</a>
+    <a href="{{ base }}?r=home" class="text-gray-200 no-underline px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 font-semibold border border-white/5">Feed</a>
+    <a href="{{ base }}?r=categories" class="text-gray-200 no-underline px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 font-semibold border border-white/5">Témata</a>
+  </div>
+</nav>
+
+<script>
+// Mobile menu toggle
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const mobileMenu = document.getElementById('mobile-menu');
+
+if (mobileMenuBtn && mobileMenu) {
+  mobileMenuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+  });
+}
+</script>

@@ -1,0 +1,417 @@
+﻿{% extends 'base.twig' %}
+
+{% block content %}
+	<div class="max-w-[1100px] mx-auto px-5 py-8">
+
+		<div class="mb-8 flex items-center justify-between">
+			<div>
+				<h1 class="text-3xl font-bold m-0 mb-2">Příspěvky</h1>
+				<p class="text-muted m-0">Objevuj nejnovější obsah od komunity</p>
+			</div>
+			<a href="{{ base }}?r=posts&action=create" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl no-underline font-semibold border-2 transition-all duration-150 bg-brand text-white border-brand shadow-brand hover:bg-brand-600 hover:border-brand-600">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+				</svg>
+				Vytvořit příspěvek
+			</a>
+		</div>
+
+		{% if success %}
+			<div class="bg-green-500/20 border border-green-500/50 text-green-300 px-4 py-3 rounded-lg mb-6">
+				{{ success }}
+			</div>
+		{% endif %}
+		{% if error %}
+			<div class="bg-red-500/20 border border-red-500/50 text-red-300 px-4 py-3 rounded-lg mb-6">
+				{{ error }}
+			</div>
+		{% endif %}
+
+		{# Filter and sort controls #}
+		<div class="mb-6">
+			<form method="GET" action="{{ base }}" class="flex flex-wrap gap-4 items-center" id="filter-form">
+				<input type="hidden" name="r" value="home">
+				<input type="hidden" name="category" id="category-input" value="{{ selectedCategory }}">
+				<input type="hidden" name="sort" id="sort-input" value="{{ selectedSort }}">
+
+				<div class="flex items-center gap-3">
+					<label class="text-sm font-medium text-gray-300">Kategorie:</label>
+					<div class="relative">
+						<button type="button" id="category-btn" class="px-3.5 py-2.5 pr-10 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all hover:border-white/20 focus:border-brand min-w-[180px] text-left">
+							<span id="category-label">{{ selectedCategory ? (categories|filter(c => c.id == selectedCategory)|first).name : 'Všechny kategorie' }}</span>
+							<svg id="category-chevron" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted transition-transform" viewbox="0 0 20 20" fill="currentColor">
+								<path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.24 4.405a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
+							</svg>
+						</button>
+						<div id="category-list" class="hidden absolute z-30 mt-2 left-0 bg-[#141a22] border border-white/12 rounded-xl shadow-dropdown p-1.5 max-h-64 overflow-auto scrollbar-dark min-w-[180px]">
+							<button type="button" data-value="" class="w-full text-left px-3.5 py-2.5 rounded-lg text-gray-200 hover:bg-white/10 {{ not selectedCategory ? 'bg-white/10' : '' }}">Všechny kategorie</button>
+							{% for category in categories %}
+								<button type="button" data-value="{{ category.id }}" class="w-full text-left px-3.5 py-2.5 rounded-lg text-gray-200 hover:bg-white/10 {{ selectedCategory == category.id ? 'bg-white/10' : '' }}">{{ category.name }}</button>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+
+				<div class="flex items-center gap-3">
+					<label class="text-sm font-medium text-gray-300">Řazení:</label>
+					<div class="relative">
+						<button type="button" id="sort-btn" class="px-3.5 py-2.5 pr-10 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all hover:border-white/20 focus:border-brand min-w-[160px] text-left">
+							<span id="sort-label">{{ selectedSort == 'votes' ? 'Nejvíce líbí' : 'Nejnovější' }}</span>
+							<svg id="sort-chevron" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted transition-transform" viewbox="0 0 20 20" fill="currentColor">
+								<path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.24 4.405a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
+							</svg>
+						</button>
+						<div id="sort-list" class="hidden absolute z-30 mt-2 left-0 bg-[#141a22] border border-white/12 rounded-xl shadow-dropdown p-1.5 min-w-[160px]">
+							<button type="button" data-value="date" class="w-full text-left px-3.5 py-2.5 rounded-lg text-gray-200 hover:bg-white/10 {{ selectedSort == 'date' ? 'bg-white/10' : '' }}">Nejnovější</button>
+							<button type="button" data-value="votes" class="w-full text-left px-3.5 py-2.5 rounded-lg text-gray-200 hover:bg-white/10 {{ selectedSort == 'votes' ? 'bg-white/10' : '' }}">Nejvíce líbí</button>
+						</div>
+					</div>
+				</div>
+
+				{% if selectedCategory or selectedSort != 'date' %}
+					<a href="{{ base }}?r=home" class="text-sm font-medium text-brand hover:text-brand-400 transition-colors flex items-center gap-1.5">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+						</svg>
+						Zrušit filtry
+					</a>
+				{% endif %}
+			</form>
+		</div>
+
+		<script>
+			// Category dropdown
+const categoryBtn = document.getElementById('category-btn');
+const categoryList = document.getElementById('category-list');
+const categoryLabel = document.getElementById('category-label');
+const categoryChevron = document.getElementById('category-chevron');
+const categoryInput = document.getElementById('category-input');
+
+categoryBtn.addEventListener('click', () => {
+const willOpen = categoryList.classList.contains('hidden');
+document.querySelectorAll('#sort-list').forEach(l => l.classList.add('hidden'));
+if (willOpen) {
+categoryList.classList.remove('hidden');
+categoryChevron.classList.add('rotate-180');
+} else {
+categoryList.classList.add('hidden');
+categoryChevron.classList.remove('rotate-180');
+}
+});
+
+categoryList.querySelectorAll('button[data-value]').forEach(btn => {
+btn.addEventListener('click', () => {
+categoryInput.value = btn.getAttribute('data-value');
+categoryLabel.textContent = btn.textContent;
+categoryList.querySelectorAll('button').forEach(b => b.classList.remove('bg-white/10'));
+btn.classList.add('bg-white/10');
+categoryList.classList.add('hidden');
+categoryChevron.classList.remove('rotate-180');
+document.getElementById('filter-form').submit();
+});
+});
+
+// Sort dropdown
+const sortBtn = document.getElementById('sort-btn');
+const sortList = document.getElementById('sort-list');
+const sortLabel = document.getElementById('sort-label');
+const sortChevron = document.getElementById('sort-chevron');
+const sortInput = document.getElementById('sort-input');
+
+sortBtn.addEventListener('click', () => {
+const willOpen = sortList.classList.contains('hidden');
+document.querySelectorAll('#category-list').forEach(l => l.classList.add('hidden'));
+if (willOpen) {
+sortList.classList.remove('hidden');
+sortChevron.classList.add('rotate-180');
+} else {
+sortList.classList.add('hidden');
+sortChevron.classList.remove('rotate-180');
+}
+});
+
+sortList.querySelectorAll('button[data-value]').forEach(btn => {
+btn.addEventListener('click', () => {
+sortInput.value = btn.getAttribute('data-value');
+sortLabel.textContent = btn.textContent;
+sortList.querySelectorAll('button').forEach(b => b.classList.remove('bg-white/10'));
+btn.classList.add('bg-white/10');
+sortList.classList.add('hidden');
+sortChevron.classList.remove('rotate-180');
+document.getElementById('filter-form').submit();
+});
+});
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', (e) => {
+if (! categoryList.contains(e.target) && ! categoryBtn.contains(e.target)) {
+categoryList.classList.add('hidden');
+categoryChevron.classList.remove('rotate-180');
+}
+if (! sortList.contains(e.target) && ! sortBtn.contains(e.target)) {
+sortList.classList.add('hidden');
+sortChevron.classList.remove('rotate-180');
+}
+});
+		</script>
+
+		{% if posts %}
+			<div class="space-y-4">
+				{% for post in posts %}
+					<article class="bg-surface rounded-xl border border-white/8 overflow-hidden hover:border-white/12 transition-colors">
+						<div class="flex gap-4 p-4">
+							<div class="flex flex-col items-center gap-1 min-w-10" data-vote-scope="{{ post.id }}" data-vote-state="{{ (isLoggedIn and post.user_vote is defined) ? post.user_vote : 'none' }}">
+								<button onclick="{{ isLoggedIn ? "vote(" ~ post.id ~ ", 'upvote')" : "window.location.href='" ~ base ~ "?r=auth/login'" }}" data-up="{{ post.id }}" class="vote-btn transition-colors cursor-pointer">
+									<img src="{{ base }}images/icons/{{ (isLoggedIn and post.user_vote is defined and post.user_vote == 'up') ? 'up_arrow_blue.svg' : 'up_arrow_gray.svg' }}" class="w-6 h-6" alt="Upvote">
+								</button>
+								<span class="vote-score font-bold text-lg" data-post-id="{{ post.id }}">{{ post.vote_score }}</span>
+								<button onclick="{{ isLoggedIn ? "vote(" ~ post.id ~ ", 'downvote')" : "window.location.href='" ~ base ~ "?r=auth/login'" }}" data-down="{{ post.id }}" class="vote-btn transition-colors cursor-pointer">
+									<img src="{{ base }}images/icons/{{ (isLoggedIn and post.user_vote is defined and post.user_vote == 'down') ? 'down_arrow_red.svg' : 'down_arrow_gray.svg' }}" class="w-6 h-6" alt="Downvote">
+								</button>
+							</div>
+							<div class="flex-1 min-w-0">
+								<div class="flex items-center gap-2 text-sm text-gray-400 mb-2">
+									<a href="{{ base }}?r=categories&slug={{ post.category_slug }}" class="font-semibold text-brand hover:underline">{{ post.category_name }}</a>
+									<span class="text-white/30">•</span>
+									<span>u/{{ post.username }}</span>
+									<span class="text-white/30">•</span>
+									<span>{{ post.created_at|date('d.m.Y H:i') }}</span>
+								</div>
+								<h2 class="text-xl font-bold mb-2 m-0">
+									<a href="{{ base }}?r=posts&action=view&id={{ post.id }}" class="text-white hover:text-brand no-underline">{{ post.title }}</a>
+								</h2>
+								<p class="text-gray-300 mb-3 line-clamp-3">{{ post.content|striptags|slice(0, 300) }}
+									{% if post.content|striptags|length > 300 %}...
+									{% endif %}
+								</p>
+								{% if post.image_path %}
+									<div class="mb-3">
+										<img src="{{ base }}{{ post.image_path }}" alt="{{ post.title }}" class="max-h-96 rounded-lg border border-white/10">
+									</div>
+								{% endif %}
+								<div class="flex items-center gap-4 text-sm text-gray-400">
+									<a href="{{ base }}?r=posts&action=view&id={{ post.id }}" class="flex items-center gap-1 hover:text-brand">
+										<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+										</svg>
+										{{ post.comment_count }}
+										komentářů
+									</a>
+									<a href="{{ base }}?r=posts&action=view&id={{ post.id }}" class="hover:text-brand">Zobrazit celý příspěvek</a>
+									{% if session.user_id == post.user_id or session.user_role in ['admin', 'superadmin'] %}
+										<form method="POST" action="{{ base }}?r=posts&action=delete" class="inline" onsubmit="return confirm('Opravdu chcete smazat tento příspěvek?')">
+											<input type="hidden" name="post_id" value="{{ post.id }}">
+											<button type="submit" class="text-red-500 hover:text-red-400">Smazat</button>
+										</form>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+					</article>
+				{% endfor %}
+			</div>
+		{% else %}
+			<div class="text-center py-20">
+				<div class="text-6xl mb-4"></div>
+				<h2 class="text-2xl font-bold m-0 mb-3">Zatím zde nejsou žádné příspěvky</h2>
+				<p class="text-muted max-w-md mx-auto mb-6">Buď první, kdo sdílí obsah s komunitou!</p>
+				{% if session.user_id %}
+					<a href="{{ base }}?r=posts&action=create" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl no-underline font-semibold border-2 transition-all duration-150 bg-brand text-white border-brand shadow-brand hover:bg-brand-600 hover:border-brand-600">
+						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+						</svg>
+						Vytvořit první příspěvek
+					</a>
+				{% endif %}
+			</div>
+		{% endif %}
+
+		{# Pagination #}
+		{% if totalPages > 1 %}
+			<div
+				class="mt-8 flex items-center justify-center gap-2">
+				{# Previous button #}
+				{% if currentPage > 1 %}
+					<a href="{{ base }}?r=home{% if selectedCategory %}&category={{ selectedCategory }}{% endif %}{% if selectedSort != 'date' %}&sort={{ selectedSort }}{% endif %}&page={{ currentPage - 1 }}" class="px-4 py-2 rounded-lg bg-surface border border-white/12 text-gray-200 hover:border-brand hover:text-brand transition-all no-underline">
+						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+						</svg>
+					</a>
+				{% endif %}
+
+				{# Page numbers #}
+				{% for page in 1..totalPages %}
+					{% if page == currentPage %}
+						<span class="px-4 py-2 rounded-lg bg-brand text-white font-semibold">{{ page }}</span>
+					{% elseif page == 1 or page == totalPages or (page >= currentPage - 2 and page <= currentPage + 2) %}
+						<a href="{{ base }}?r=home{% if selectedCategory %}&category={{ selectedCategory }}{% endif %}{% if selectedSort != 'date' %}&sort={{ selectedSort }}{% endif %}&page={{ page }}" class="px-4 py-2 rounded-lg bg-surface border border-white/12 text-gray-200 hover:border-brand hover:text-brand transition-all no-underline">
+							{{ page }}
+						</a>
+					{% elseif page == currentPage - 3 or page == currentPage + 3 %}
+						<span class="px-2 text-gray-400">...</span>
+					{% endif %}
+				{% endfor %}
+
+				{# Next button #}
+				{% if currentPage < totalPages %}
+					<a href="{{ base }}?r=home{% if selectedCategory %}&category={{ selectedCategory }}{% endif %}{% if selectedSort != 'date' %}&sort={{ selectedSort }}{% endif %}&page={{ currentPage + 1 }}" class="px-4 py-2 rounded-lg bg-surface border border-white/12 text-gray-200 hover:border-brand hover:text-brand transition-all no-underline">
+						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+						</svg>
+					</a>
+				{% endif %}
+			</div>
+		{% endif %}
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+	<script>
+		async function vote(postId, voteType) {
+const scope = document.querySelector (`[data-vote-scope="${postId}"]`);
+if (! scope) 
+return;
+
+if (scope.dataset.pending === '1') 
+return;
+
+scope.dataset.pending = '1';
+
+const scoreElement = scope.querySelector (`[data-post-id="${postId}"]`);
+const upImg = scope.querySelector (`button[data-up="${postId}"] img`);
+const downImg = scope.querySelector (`button[data-down="${postId}"] img`);
+
+if (! scoreElement || ! upImg || ! downImg) {
+delete scope.dataset.pending;
+return;
+}
+
+const prevScore = parseInt(scoreElement.textContent, 10) || 0;
+const prevState = scope.dataset.voteState || 'none';
+
+let newState;
+if (voteType === 'upvote') {
+newState = (prevState === 'up') ? 'none' : 'up';
+} else if (voteType === 'downvote') {
+newState = (prevState === 'down') ? 'none' : 'down';
+} else {
+newState = prevState;
+}
+
+const deltaMap = {
+'none->up': 1,
+'none->down': -1,
+'up->none': -1,
+'down->none': 1,
+'up->down': -2,
+'down->up': 2
+};
+const delta = deltaMap[`${prevState}->${newState}`] || 0;
+
+const updateIcons = (state) => {
+const base = '{{ base }}images/icons/';
+if (state === 'up') {
+upImg.src = base + 'up_arrow_blue.svg';
+downImg.src = base + 'down_arrow_gray.svg';
+} else if (state === 'down') {
+upImg.src = base + 'up_arrow_gray.svg';
+downImg.src = base + 'down_arrow_red.svg';
+} else {
+upImg.src = base + 'up_arrow_gray.svg';
+downImg.src = base + 'down_arrow_gray.svg';
+}
+};
+
+// Apply optimistically
+updateIcons(newState);
+scoreElement.textContent = String(prevScore + delta);
+scope.dataset.voteState = newState;
+
+try {
+const response = await fetch('{{ base }}?r=posts&action=vote', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/x-www-form-urlencoded'
+},
+body: `post_id=${postId}&vote_type=${voteType}`
+});
+const data = await response.json();
+if (data.success) {
+scoreElement.textContent = String(data.score);
+updateIcons(data.state);
+scope.dataset.voteState = data.state || 'none';
+} else { // Revert
+scoreElement.textContent = String(prevScore);
+updateIcons(prevState);
+scope.dataset.voteState = prevState;
+}
+} catch (e) {
+scoreElement.textContent = String(prevScore);
+updateIcons(prevState);
+scope.dataset.voteState = prevState;
+} finally {
+delete scope.dataset.pending;
+}
+}
+
+// Hover effects
+document.addEventListener('mouseover', (e) => {
+const btn = e.target.closest('.vote-btn');
+if (! btn) 
+return;
+
+
+const img = btn.querySelector('img');
+if (! img) 
+return;
+
+
+const scope = btn.closest('[data-vote-scope]');
+if (! scope) 
+return;
+
+
+const state = scope.dataset.voteState || 'none';
+const isUpBtn = btn.hasAttribute('data-up');
+const base = '{{ base }}images/icons/';
+
+if (isUpBtn) {
+if (state !== 'up') 
+img.src = base + 'up_arrow_white.svg';
+
+} else {
+if (state !== 'down') 
+img.src = base + 'down_arrow_white.svg';
+
+}
+});
+
+document.addEventListener('mouseout', (e) => {
+const btn = e.target.closest('.vote-btn');
+if (! btn) 
+return;
+
+
+const img = btn.querySelector('img');
+if (! img) 
+return;
+
+
+const scope = btn.closest('[data-vote-scope]');
+if (! scope) 
+return;
+
+
+const state = scope.dataset.voteState || 'none';
+const isUpBtn = btn.hasAttribute('data-up');
+const base = '{{ base }}images/icons/';
+
+if (isUpBtn) {
+img.src = (state === 'up') ? base + 'up_arrow_blue.svg' : base + 'up_arrow_gray.svg';
+} else {
+img.src = (state === 'down') ? base + 'down_arrow_red.svg' : base + 'down_arrow_gray.svg';
+}
+});
+	</script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+  <section class="max-w-[520px] mx-auto my-8 min-h-[calc(100vh-160px)] grid content-center">
+    <h2 class="m-0 mb-4 text-center font-extrabold">Přihlášení</h2>
+    {% if errors is defined and errors|length > 0 %}
+      <div class="bg-red-500/10 border border-red-500 rounded-xl px-4 py-3 mb-3.5">
+        <ul class="m-0 pl-5 text-red-300">
+          {% for error in errors %}
+            <li class="my-1">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    <form class="grid gap-3.5 p-[22px] bg-gradient-to-b from-white/[.04] to-white/[.02] border border-white/[.10] rounded-xl shadow-auth" method="post" action="{{ base }}auth/login">
+      <div class="grid gap-2">
+        <label for="log-username" class="text-muted text-sm">Uživatelské jméno nebo email</label>
+        <input id="log-username" name="username" type="text" placeholder="Uživatelské jméno nebo email" value="{{ username|default('') }}" class="px-3.5 py-3.5 rounded-xl border border-white/[.14] bg-gradient-to-b from-white/[.05] to-white/[.03] text-gray-200 outline-none transition-all caret-accent placeholder:text-muted placeholder:opacity-85 focus:border-brand focus:shadow-ring focus:shadow-[inset_0_1px_0_rgba(255,255,255,.05)]" required />
+      </div>
+      <div class="grid gap-2">
+        <label for="log-pass" class="text-muted text-sm">Heslo</label>
+        <input id="log-pass" name="password" type="password" placeholder="Heslo" class="px-3.5 py-3.5 rounded-xl border border-white/[.14] bg-gradient-to-b from-white/[.05] to-white/[.03] text-gray-200 outline-none transition-all caret-accent placeholder:text-muted placeholder:opacity-85 focus:border-brand focus:shadow-ring focus:shadow-[inset_0_1px_0_rgba(255,255,255,.05)]" required />
+      </div>
+      <div class="flex gap-3 justify-between">
+        <button class="flex-1 inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-[10px] font-semibold border transition-all duration-150 bg-brand text-white border-transparent shadow-brand hover:bg-brand-600" type="submit">Přihlásit se</button>
+        <a class="flex-1 inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-[10px] font-semibold border transition-all duration-150 bg-transparent text-gray-200 border-white/[.12] hover:bg-white/[.06]" href="{{ base }}auth/register">Nemám účet</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+	<div class="max-w-[1200px] mx-auto px-5 py-8">
+		<div class="mb-8 flex items-center justify-between">
+			<div>
+				<h1 class="text-3xl font-bold m-0 mb-2">Správa příspěvků</h1>
+				<p class="text-muted m-0">Moderuj a spravuj obsah komunity</p>
+			</div>
+			<a href="{{ base }}?r=admin" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg no-underline font-semibold border-2 transition-all bg-transparent text-gray-200 border-white/12 hover:bg-white/6">← Zpět na dashboard</a>
+		</div>
+
+		{% if success is defined %}
+			<div class="bg-green-500/20 border border-green-500/50 rounded-xl p-4 mb-6 flex items-center">
+				<img src="{{ base }}images/icons/check.svg" alt="Success" class="w-5 h-5 mr-3 shrink-0">
+				<p class="text-green-300 m-0">{{ success }}</p>
+			</div>
+		{% endif %}
+
+		{% if error is defined %}
+			<div class="bg-red-500/20 border border-red-500/50 rounded-xl p-4 mb-6 flex items-center">
+				<img src="{{ base }}images/icons/cross.svg" alt="Error" class="w-5 h-5 mr-3 shrink-0">
+				<p class="text-red-300 m-0">{{ error }}</p>
+			</div>
+		{% endif %}
+
+		<div class="bg-surface rounded-xl border border-white/12 overflow-hidden">
+			<div class="overflow-x-auto">
+				<table class="w-full">
+					<thead class="bg-white/5 border-b border-white/8">
+						<tr>
+							<th class="text-left px-6 py-4 font-semibold text-sm text-gray-300">Název</th>
+							<th class="text-left px-6 py-4 font-semibold text-sm text-gray-300">Autor</th>
+							<th class="text-left px-6 py-4 font-semibold text-sm text-gray-300">Kategorie</th>
+							<th class="text-left px-6 py-4 font-semibold text-sm text-gray-300">Hlasy</th>
+							<th class="text-left px-6 py-4 font-semibold text-sm text-gray-300">Komentáře</th>
+							<th class="text-left px-6 py-4 font-semibold text-sm text-gray-300">Vytvořeno</th>
+							<th class="text-right px-6 py-4 font-semibold text-sm text-gray-300">Akce</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-white/8">
+						{% for post in posts %}
+							<tr class="hover:bg-white/5 transition-colors">
+								<td class="px-6 py-4 max-w-[300px]">
+									<a href="{{ base }}?r=posts&action=view&id={{ post.id }}" class="text-white font-semibold hover:underline line-clamp-2">{{ post.title }}</a>
+								</td>
+								<td class="px-6 py-4 text-sm">
+									<span class="font-semibold">{{ post.username }}</span>
+								</td>
+								<td class="px-6 py-4 text-sm text-muted">{{ post.category_name }}</td>
+								<td class="px-6 py-4 text-sm font-semibold {% if post.vote_score > 0 %}text-green-400{% elseif post.vote_score < 0 %}text-red-400{% else %}text-gray-300{% endif %}">{{ post.vote_score }}</td>
+								<td class="px-6 py-4 text-sm text-gray-300">{{ post.comment_count }}</td>
+								<td class="px-6 py-4 text-sm text-muted">{{ post.created_at|date('d.m.Y H:i') }}</td>
+								<td class="px-6 py-4">
+									<div class="flex items-center justify-end gap-2">
+										{% set canDelete = (post.user_id == currentUser.id) or (permissions.canDeleteUserContent(currentUser.role_id, post.user_role_id)) %}
+										{% if canDelete %}
+											<form method="POST" action="{{ base }}?r=admin/delete-post" onsubmit="return confirm('Smazat tento příspěvek?')" class="inline">
+												<input type="hidden" name="post_id" value="{{ post.id }}">
+												<button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all bg-exclamation/20 text-exclamation border-exclamation/30 hover:bg-exclamation/30">Smazat</button>
+											</form>
+										{% endif %}
+										<a href="{{ base }}?r=posts&action=view&id={{ post.id }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all bg-brand/20 text-brand border-brand/30 hover:bg-brand/30">Otevřít</a>
+									</div>
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="7" class="px-6 py-6 text-center text-muted">Žádné příspěvky k zobrazení</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}

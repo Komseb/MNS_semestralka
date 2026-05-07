@@ -1,0 +1,335 @@
+{% extends 'base.twig' %}
+
+{% block title %}Vytvořit příspěvek - Ziggid
+{% endblock %}
+
+{% block content %}
+	<section class="max-w-[700px] mx-auto my-4 min-h-[calc(100vh-160px)] grid content-center px-5">
+		<h2 class="m-0 mb-4 text-center font-extrabold">Vytvořit příspěvek</h2>
+
+		<!-- Error Messages -->
+		{% if errors %}
+			<div class="bg-red-500/10 border border-red-500/50 rounded-xl px-4 py-3 mb-3.5">
+				<div class="flex items-start">
+					<svg class="w-5 h-5 text-red-300 mt-0.5 mr-3" fill="currentColor" viewbox="0 0 20 20">
+						<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+					</svg>
+					<div>
+						<h3 class="font-semibold text-red-300 mb-1">Chyba</h3>
+						<ul class="m-0 pl-5 text-red-300">
+							{% for error in errors %}
+								<li>{{ error }}</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+			</div>
+		{% endif %}
+
+		<!-- Create Post Form (login-like card) -->
+		<form
+			id="create-post-form" method="POST" action="{{ base_url }}?r=posts&action=store" enctype="multipart/form-data" class="grid gap-2 p-[20px] bg-surface border border-white/12 rounded-xl shadow-auth">
+
+			<!-- Category Selection -->
+			{% set selectedCategory = null %}
+			{% for c in categories %}
+				{% if category_id == c.id %}
+					{% set selectedCategory = c %}
+				{% endif %}
+			{% endfor %}
+			<div class="grid gap-2">
+				<label class="text-muted text-sm">Kategorie *</label>
+				<div class="relative" id="cat-select">
+					<input type="hidden" id="category_id" name="category_id" value="{{ category_id|default('') }}">
+					<button type="button" id="cat-btn" class="w-full text-left px-3 py-2 pr-10 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all focus:border-brand">
+						<span id="cat-label">{{ selectedCategory ? selectedCategory.name : 'Vyberte kategorii' }}</span>
+						<svg id="cat-chevron" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted transition-transform" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true">
+							<path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.24 4.405a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
+						</svg>
+					</button>
+					<div id="cat-list" class="hidden absolute z-30 mt-2 left-0 right-0 bg-[#141a22] border border-white/12 rounded-xl shadow-dropdown p-1.5 max-h-64 overflow-auto scrollbar-dark">
+						{% for category in categories %}
+							<button type="button" data-id="{{ category.id }}" data-label="{{ category.name }}" class="w-full text-left px-3.5 py-2.5 rounded-lg text-gray-200 hover:bg-white/10 {% if category_id == category.id %}bg-white/10{% endif %}">{{ category.name }}</button>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+
+			<!-- Title -->
+			<div class="grid gap-2">
+				<label for="title" class="text-muted text-sm">
+					Název příspěvku *
+				</label>
+				<input type="text" id="title" name="title" value="{{ title }}" required maxlength="300" placeholder="Zadejte výstižný název..." class="px-3 py-2 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all caret-accent placeholder:text-muted placeholder:opacity-85 focus:border-brand">
+				<p class="text-xs text-muted">Minimálně 3 znaky, maximálně 300 znaků</p>
+			</div>
+
+			<!-- Content -->
+			<div class="grid gap-2">
+				<label for="content" class="text-muted text-sm">
+					Obsah *
+				</label>
+				<textarea id="content" name="content" rows="12" placeholder="Napište obsah příspěvku..." class="px-3.5 py-3.5 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all caret-accent placeholder:text-muted placeholder:opacity-85 focus:border-brand resize-y">{{ content }}</textarea>
+				<p class="text-xs text-muted">Minimálně 10 znaků</p>
+			</div>
+
+			<!-- Image Upload -->
+			<div class="grid gap-2">
+				<label for="image" class="text-muted text-sm">
+					Obrázek (volitelné)
+				</label>
+				<div>
+					<div id="drop-zone" class="rounded-xl border border-white/12 bg-[#141a22] text-center py-4 px-4 transition-all cursor-pointer">
+						<input type="file" id="image" name="image" accept="image/jpeg,image/png,image/gif,image/webp" class="hidden">
+						<div id="upload-prompt">
+							<svg class="mx-auto h-8 w-8 text-muted" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+							</svg>
+							<p class="mt-2 text-sm text-muted">
+								<span class="font-semibold text-brand hover:text-brand-600">Klikněte pro výběr</span>
+								nebo přetáhněte obrázek
+							</p>
+							<p class="mt-1 text-xs text-muted">JPG, PNG, GIF nebo WEBP (max. 5 MB)</p>
+						</div>
+						<div id="preview-container" class="hidden">
+							<img id="preview-image" src="" alt="Náhled" class="max-h-64 mx-auto rounded-lg">
+							<button type="button" id="remove-image" class="mt-4 px-4 py-2 bg-red-500/10 text-red-300 rounded-lg hover:bg-red-500/20 transition-colors border border-red-500/40">
+								Odstranit obrázek
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Actions -->
+			<div class="flex gap-3 justify-between pt-1">
+				<button type="submit" class="flex-1 inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-[10px] font-semibold border transition-all duration-150 bg-brand text-white border-transparent shadow-brand hover:bg-brand-600">
+					Vytvořit příspěvek
+				</button>
+				<a href="{{ base_url }}?r=home" class="flex-1 inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-[10px] font-semibold border transition-all duration-150 bg-transparent text-gray-200 border-white/12 hover:bg-white/6">
+					Zrušit
+				</a>
+			</div>
+		</form>
+	</section>
+
+	<script src="https://cdn.ckeditor.com/ckeditor5/41.2.0/classic/ckeditor.js"></script>
+	<script src="https://cdn.ckeditor.com/ckeditor5/41.2.0/classic/translations/cs.js"></script>
+	<script>
+		// Image upload handling
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('image');
+const uploadPrompt = document.getElementById('upload-prompt');
+const previewContainer = document.getElementById('preview-container');
+const previewImage = document.getElementById('preview-image');
+const removeImageBtn = document.getElementById('remove-image');
+
+// Custom category dropdown
+const catBtn = document.getElementById('cat-btn');
+const catList = document.getElementById('cat-list');
+const catHidden = document.getElementById('category_id');
+const catLabel = document.getElementById('cat-label');
+const catChevron = document.getElementById('cat-chevron');
+
+function closeCatList() {
+catList.classList.add('hidden');
+catChevron.classList.remove('rotate-180');
+}
+
+catBtn ?. addEventListener('click', () => {
+const willOpen = catList.classList.contains('hidden');
+document.querySelectorAll('#cat-list').forEach(l => l.classList.add('hidden'));
+if (willOpen) {
+catList.classList.remove('hidden');
+catChevron.classList.add('rotate-180');
+} else {
+closeCatList();
+}
+});
+
+catList ?. querySelectorAll('button[data-id]') ?. forEach(btn => {
+btn.addEventListener('click', () => {
+const id = btn.getAttribute('data-id');
+const label = btn.getAttribute('data-label');
+catHidden.value = id;
+catLabel.textContent = label;
+catList.querySelectorAll('button').forEach(b => b.classList.remove('bg-white/10'));
+btn.classList.add('bg-white/10');
+closeCatList();
+});
+});
+
+document.addEventListener('click', (e) => {
+if (! catList ?. contains(e.target) && ! catBtn ?. contains(e.target)) {
+closeCatList();
+}
+});
+
+// Click to select file
+dropZone.addEventListener('click', (e) => {
+if (e.target !== removeImageBtn && ! removeImageBtn.contains(e.target)) {
+fileInput.click();
+}
+});
+
+// File input change
+fileInput.addEventListener('change', handleFiles);
+
+// Drag and drop
+dropZone.addEventListener('dragover', (e) => {
+e.preventDefault();
+dropZone.classList.add('border-brand', 'bg-white/10');
+});
+
+dropZone.addEventListener('dragleave', (e) => {
+e.preventDefault();
+dropZone.classList.remove('border-brand', 'bg-white/10');
+});
+
+dropZone.addEventListener('drop', (e) => {
+e.preventDefault();
+dropZone.classList.remove('border-brand', 'bg-white/10');
+
+const files = e.dataTransfer.files;
+if (files.length > 0) {
+fileInput.files = files;
+handleFiles();
+}
+});
+
+// Remove image
+removeImageBtn.addEventListener('click', (e) => {
+e.stopPropagation();
+fileInput.value = '';
+uploadPrompt.classList.remove('hidden');
+previewContainer.classList.add('hidden');
+previewImage.src = '';
+});
+
+function handleFiles() {
+const file = fileInput.files[0];
+if (! file) 
+return;
+
+
+
+// Check file type
+const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+if (! allowedTypes.includes(file.type)) {
+alert('Povolené formáty jsou pouze JPG, PNG, GIF a WEBP');
+fileInput.value = '';
+return;
+}
+
+// Check file size (5MB)
+if (file.size > 5 * 1024 * 1024) {
+alert('Maximální velikost obrázku je 5 MB');
+fileInput.value = '';
+return;
+}
+
+// Show preview
+const reader = new FileReader();
+reader.onload = (e) => {
+previewImage.src = e.target.result;
+uploadPrompt.classList.add('hidden');
+previewContainer.classList.remove('hidden');
+};
+reader.readAsDataURL(file);
+}
+// CKEditor initialization
+
+ClassicEditor.create(document.querySelector('#content'), {
+toolbar: [
+'heading',
+'|',
+'bold',
+'italic',
+'link',
+'bulletedList',
+'numberedList',
+'blockQuote',
+'undo',
+'redo'
+],
+language: 'cs'
+}).then(editor => { // Sync data to textarea before submit
+const form = document.getElementById('create-post-form');
+form.addEventListener('submit', (e) => {
+const data = editor.getData();
+document.querySelector('#content').value = data;
+
+// Manual validation since we removed 'required'
+if (! data.trim()) {
+e.preventDefault();
+alert('Prosím vyplňte obsah příspěvku.');
+}
+});
+}).catch(error => {
+console.error(error);
+});
+	</script>
+
+
+	<style>
+	/* CKEditor Dark Theme Overrides */:root
+	{
+		--ck-color-base-background: #141a22;
+		--ck-color-base-border: rgba(255, 255, 255, 0.12);
+		--ck-color-toolbar-background: #141a22;
+		--ck-color-text: #e5e7eb;
+		--ck-color-toolbar-border: rgba(255, 255, 255, 0.12);
+	}
+
+	.ck-editor__editable_inline {
+		min-height: 150px;
+	}
+
+	.ck.ck-editor__main > .ck-editor__editable {
+		background: #141a22 !important;
+		color: #e5e7eb !important;
+		border-color: rgba(255, 255, 255, 0.12) !important;
+		border-bottom-left-radius: 0.75rem !important;
+		border-bottom-right-radius: 0.75rem !important;
+	}
+
+	.ck.ck-editor__top .ck-sticky-panel .ck-toolbar {
+		background: #141a22 !important;
+		border-color: rgba(255, 255, 255, 0.12) !important;
+		border-top-left-radius: 0.75rem !important;
+		border-top-right-radius: 0.75rem !important;
+	}
+
+	.ck.ck-editor__main > .ck-editor__editable:focus {
+		border-color: #3b82f6 !important;
+		box-shadow: none !important;
+	}
+
+	.ck.ck-button {
+		color: #9ca3af !important;
+		cursor: pointer !important;
+	}
+
+	.ck.ck-button:hover,
+	.ck.ck-button.ck-on {
+		color: #e5e7eb !important;
+		background: rgba(255, 255, 255, 0.1) !important;
+	}
+
+	.ck.ck-list {
+		background: #141a22 !important;
+		border-color: rgba(255, 255, 255, 0.12) !important;
+	}
+
+	.ck.ck-list__item .ck-button:hover {
+		background: rgba(255, 255, 255, 0.1) !important;
+	}
+
+	.ck.ck-dropdown__panel {
+		background: #141a22 !important;
+		border-color: rgba(255, 255, 255, 0.12) !important;
+	}
+
+	/* Hide the original textarea if CKEditor doesn't do it automatically or to prevent flash */
+	/* CKEditor usually hides the source element */
+</style>{% endblock %}
