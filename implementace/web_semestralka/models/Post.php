@@ -217,25 +217,34 @@ class Post extends BaseModel
         if ($existingVote) {
             //clicking same vote type removes the vote (toggle off)
             if ($existingVote['vote_type_id'] == $voteTypeId) {
-                self::execute(
+                $success = self::execute(
                     "DELETE FROM post_votes WHERE post_id = ? AND user_id = ?",
                     [$postId, $userId]
                 );
+                if ($success) {
+                    self::notify('post.voted', ['post_id' => $postId, 'user_id' => $userId, 'vote_type' => 'none']);
+                }
                 return true;
             }
             //clicking opposite vote type switches the vote
-            self::execute(
+            $success = self::execute(
                 "UPDATE post_votes SET vote_type_id = ? WHERE post_id = ? AND user_id = ?",
                 [$voteTypeId, $postId, $userId]
             );
+            if ($success) {
+                self::notify('post.voted', ['post_id' => $postId, 'user_id' => $userId, 'vote_type' => $voteName]);
+            }
             return true;
         }
 
         //create new vote record for first-time voting
-        self::execute(
+        $success = self::execute(
             "INSERT INTO post_votes (post_id, user_id, vote_type_id, created_at) VALUES (?, ?, ?, NOW())",
             [$postId, $userId, $voteTypeId]
         );
+        if ($success) {
+            self::notify('post.voted', ['post_id' => $postId, 'user_id' => $userId, 'vote_type' => $voteName]);
+        }
         return true;
     }
 

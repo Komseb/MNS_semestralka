@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    {% include 'partials/head.twig' %}
-  </head>
-  <body class="pt-16">
-    {% include 'partials/header.twig' %}
-    <main>
-      {% block content %}{% endblock %}
-    </main>
-    {% include 'partials/footer.twig' %}
-    {% block scripts %}{% endblock %}
-  </body>
-  
-</html>
+	<head>
+		{% include 'partials/head.twig' %}
+	</head>
+	<body class="pt-16">
+		{% include 'partials/header.twig' %}
+		<main class="max-w-[1100px] mx-auto py-4 min-h-[calc(100vh-160px)]"> {% block content %}{% endblock %}
+			</main>
+			{% include 'partials/footer.twig' %}
+			{% block scripts %}{% endblock %}
+		</body>
+
+	</html>

@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block content %}
-	<section class="max-w-[700px] mx-auto my-4 min-h-[calc(100vh-160px)] grid content-center px-5">
+	<section class="min-h-[calc(100vh-160px)] grid content-center px-5">
 		<h2 class="m-0 mb-4 text-center font-extrabold">Vytvořit příspěvek</h2>
 
 		<!-- Error Messages -->
@@ -28,7 +28,7 @@
 
 		<!-- Create Post Form (login-like card) -->
 		<form
-			id="create-post-form" method="POST" action="{{ base_url }}?r=posts&action=store" enctype="multipart/form-data" class="grid gap-2 p-[20px] bg-surface border border-white/12 rounded-xl shadow-auth">
+			id="create-post-form" method="POST" action="{{ base_url }}?r=posts&action=store" enctype="multipart/form-data" class="grid gap-3.5 p-[22px] bg-surface border border-white/12 rounded-xl shadow-auth">
 
 			<!-- Category Selection -->
 			{% set selectedCategory = null %}
@@ -41,7 +41,7 @@
 				<label class="text-muted text-sm">Kategorie *</label>
 				<div class="relative" id="cat-select">
 					<input type="hidden" id="category_id" name="category_id" value="{{ category_id|default('') }}">
-					<button type="button" id="cat-btn" class="w-full text-left px-3 py-2 pr-10 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all focus:border-brand">
+					<button type="button" id="cat-btn" class="w-full text-left px-3.5 py-3.5 pr-10 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all focus:border-brand">
 						<span id="cat-label">{{ selectedCategory ? selectedCategory.name : 'Vyberte kategorii' }}</span>
 						<svg id="cat-chevron" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted transition-transform" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true">
 							<path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.24 4.405a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
@@ -60,7 +60,7 @@
 				<label for="title" class="text-muted text-sm">
 					Název příspěvku *
 				</label>
-				<input type="text" id="title" name="title" value="{{ title }}" required maxlength="300" placeholder="Zadejte výstižný název..." class="px-3 py-2 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all caret-accent placeholder:text-muted placeholder:opacity-85 focus:border-brand">
+				<input type="text" id="title" name="title" value="{{ title }}" required maxlength="300" placeholder="Zadejte výstižný název..." class="px-3.5 py-3.5 rounded-xl border border-white/12 bg-[#141a22] text-gray-200 outline-none transition-all caret-accent placeholder:text-muted placeholder:opacity-85 focus:border-brand">
 				<p class="text-xs text-muted">Minimálně 3 znaky, maximálně 300 znaků</p>
 			</div>
 
@@ -79,10 +79,10 @@
 					Obrázek (volitelné)
 				</label>
 				<div>
-					<div id="drop-zone" class="rounded-xl border border-white/12 bg-[#141a22] text-center py-4 px-4 transition-all cursor-pointer">
+					<div id="drop-zone" class="rounded-xl border border-white/12 bg-[#141a22] text-center py-8 px-4 transition-all cursor-pointer">
 						<input type="file" id="image" name="image" accept="image/jpeg,image/png,image/gif,image/webp" class="hidden">
 						<div id="upload-prompt">
-							<svg class="mx-auto h-8 w-8 text-muted" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+							<svg class="mx-auto h-12 w-12 text-muted" fill="none" stroke="currentColor" viewbox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
 							</svg>
 							<p class="mt-2 text-sm text-muted">
@@ -282,7 +282,7 @@ console.error(error);
 	}
 
 	.ck-editor__editable_inline {
-		min-height: 150px;
+		min-height: 300px;
 	}
 
 	.ck.ck-editor__main > .ck-editor__editable {

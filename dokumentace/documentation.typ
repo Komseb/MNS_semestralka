@@ -13,3 +13,6 @@
   department: "kiv",
   language: "cs",
 )
+
+
+\\technologie, shrnuti zadani, stratege pouzite, shrnuti tematu celkove
