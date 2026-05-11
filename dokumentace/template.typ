@@ -88,7 +88,20 @@
     if it.level == 1 {
       pagebreak(weak: true)
       v(3em)
-      text(size: 28pt)[#it]
+      if it.numbering != none {
+        grid(
+          columns: (auto, 1fr, auto),
+          align: (left, horizon, right),
+          gutter: 1.5em,
+          text(size: 24pt)[#it.body],
+          line(length: 100%, stroke: 1.5pt + zcu-blue),
+          rect(fill: zcu-blue, inset: (x: 18pt, y: 12pt))[
+            #text(size: 38pt, fill: white, weight: "bold")[#counter(heading).display(it.numbering)]
+          ]
+        )
+      } else {
+        text(size: 28pt)[#it.body]
+      }
       v(1.5em)
     } else if it.level == 2 {
       v(1.5em)
