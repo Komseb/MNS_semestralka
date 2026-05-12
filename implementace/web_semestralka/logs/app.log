@@ -10,3 +10,13 @@
 2026-05-06 21:22:39 - EVENT: post.created - DATA: {"user_id":18,"category_id":17,"title":"tzfdgas","content":"<p>afgafgadfgadfgad<\/p>","image_path":null}
 2026-05-06 21:33:44 - EVENT: post.deleted - DATA: {"id":56,"image_path":null}
 2026-05-06 21:33:44 - EVENT: post.deleted - DATA: {"id":56,"image_path":null}
+2026-05-12 06:40:23 - EVENT: post.voted - DATA: {"post_id":44,"user_id":18,"vote_type":"upvote"}
+2026-05-12 06:40:23 - EVENT: post.voted - DATA: {"post_id":44,"user_id":18,"vote_type":"upvote"}
+2026-05-12 06:40:26 - EVENT: post.voted - DATA: {"post_id":44,"user_id":18,"vote_type":"downvote"}
+2026-05-12 06:40:26 - EVENT: post.voted - DATA: {"post_id":44,"user_id":18,"vote_type":"downvote"}
+2026-05-12 06:40:37 - EVENT: post.voted - DATA: {"post_id":44,"user_id":18,"vote_type":"upvote"}
+2026-05-12 06:40:37 - EVENT: post.voted - DATA: {"post_id":44,"user_id":18,"vote_type":"upvote"}
+2026-05-12 06:40:52 - EVENT: post.voted - DATA: {"post_id":10,"user_id":18,"vote_type":"upvote"}
+2026-05-12 06:40:52 - EVENT: post.voted - DATA: {"post_id":10,"user_id":18,"vote_type":"upvote"}
+2026-05-12 06:40:53 - EVENT: post.voted - DATA: {"post_id":40,"user_id":18,"vote_type":"downvote"}
+2026-05-12 06:40:53 - EVENT: post.voted - DATA: {"post_id":40,"user_id":18,"vote_type":"downvote"}

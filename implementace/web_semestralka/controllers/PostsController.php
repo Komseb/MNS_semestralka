@@ -74,7 +74,7 @@ class PostsController extends BaseController
     }
 
     //process post creation form with validation and image upload
-    private function handleStore(): void
+    private function    handleStore(): void
     {
         //extract and sanitize form inputs
         $title = trim($_POST['title'] ?? '');
